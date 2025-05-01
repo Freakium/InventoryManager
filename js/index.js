@@ -31,7 +31,7 @@
 
     // check if file has correct contents
     if(!items) {
-      alertMessage('fileMessageArea', 'A problem occurred while loading file. Please make sure you are loading the correct inventory file.', 'danger');
+      alertMessage('topMessageArea', 'A problem occurred while loading file. Please make sure you are loading the correct inventory file.', 'danger');
       return;
     }
 
@@ -48,6 +48,9 @@
     if(item) {
       populateItemFields(item);
       itemFormCollapse.show();
+
+      // set focus on name input
+      document.getElementById('itemName').focus();
     }
     else {
       alertMessage('messageArea', 'A problem occurred while fetching item. Please try again later.', 'danger');
@@ -73,7 +76,7 @@
       // UI items
       itemFormCollapse.hide();
       alertMessage('messageArea', 'Item successfully added!', 'success', 3);
-      document.getElementById('saveListBtn').classList.remove('d-none');
+      document.getElementById('saveFileBtn').classList.remove('d-none');
     }
     else {
       alertMessage('itemFormMessageArea', 'A problem occurred while adding item. Please try again later.', 'danger');
@@ -96,7 +99,7 @@
       // UI items
       itemFormCollapse.hide();
       alertMessage('messageArea', 'Item successfully updated!', 'success', 3);
-      document.getElementById('saveListBtn').classList.remove('d-none');
+      document.getElementById('saveFileBtn').classList.remove('d-none');
     }
     else {
       alertMessage('itemFormMessageArea', 'A problem occurred while updating item. Please try again later.', 'danger');
@@ -119,7 +122,7 @@
       itemFormCollapse.hide();
 
       alertMessage('messageArea', 'Item successfully deleted!', 'success', 3);
-      document.getElementById('saveListBtn').classList.remove('d-none');
+      document.getElementById('saveFileBtn').classList.remove('d-none');
     }
     else {
       alertMessage('deleteModalMessageArea', errorMsg, 'danger');
@@ -134,7 +137,7 @@
 
     // check if file has correct contents
     if(!title) {
-      alertMessage('fileMessageArea', 'A problem occurred while loading file. Please make sure you are loading the correct inventory file.', 'danger');
+      alertMessage('topMessageArea', 'A problem occurred while loading file. Please make sure you are loading the correct inventory file.', 'danger');
       return;
     }
 
@@ -206,11 +209,11 @@
             <button class="btn btn-sm btn-link" onclick="updateItemOperation('${id}');"><i class="bi bi-pencil-square"></i></button>
           </div>
           <div class="card-body bg-secondary-subtle">
-            <div class="form-floating shadow mb-3">
-              <input class="form-control mb-3" id="${id}-quantity" value="${quantity}" title="Quantity" disabled>
+            <span class="badge bg-primary mb-3" id="${id}-itemType" title="Item Type">${itemType}</span>
+            <div class="form-floating shadow">
+              <input class="form-control" id="${id}-quantity" value="${quantity}" title="Quantity" disabled>
               <label for="floatingInput">Quantity</label>
             </div>
-            <span class="badge bg-primary" id="${id}-itemType" title="Item Type">${itemType}</span>
           </div>
           <div class="card-footer">
             <small class="text-body-secondary" id="${id}-itemDate" title="Appointment Date">${dateTime}</small>
@@ -262,11 +265,14 @@
 
   /*====================== DISPLAY FUNCTIONS =====================*/
 
-  // Displays an alert message
-  // @id: id of the element
-  // @message: message to display
-  // @colour: bootstrap colour
-  // @timer: time in seconds until automatic removal
+  /**
+   * Displays an alert message.
+   * @param {*} id id of the element
+   * @param {*} message message to display
+   * @param {*} colour bootstrap colour
+   * @param {*} timer time in seconds until automatic removal
+   * @returns 
+   */
   function alertMessage(id, message, colour, timer) {
     // error check
     if (typeof message != 'string' || typeof id != 'string' || id.length == 0)
@@ -300,7 +306,14 @@
   /*====================== LISTENER FUNCTIONS ====================*/
 
   /**
-   * Toggles the theme
+   * Clicks the hidden file input to upload existing inventory list.
+   */
+  window.loadFileListener = () => {
+    document.getElementById('fileInput').click();
+  },
+
+  /**
+   * Toggles the theme.
    */
   window.toggleTheme = () => {
     const btn = document.getElementById('themeBtn');
@@ -308,16 +321,16 @@
 
     if(html.hasAttribute('data-bs-theme')) {
       html.removeAttribute('data-bs-theme');
-      btn.innerHTML = `<i class="bi bi-moon-stars-fill"></i>`;
+      btn.innerHTML = `<i class="bi bi-moon-stars-fill mx-2"></i>Dark Mode`;
     }
     else {
       html.setAttribute('data-bs-theme', 'dark');
-      btn.innerHTML = `<i class="bi bi-brightness-high-fill"></i>`;
+      btn.innerHTML = `<i class="bi bi-brightness-high-fill mx-2"></i>Light Mode`;
     }
   },
 
   /**
-   * Loads user uploaded database file
+   * Loads user uploaded database file.
    */
   window.loadFile = () => {
     const file = document.getElementById('fileInput').files[0];
@@ -332,9 +345,12 @@
           let parseInput = JSON.parse(fileContent);
 
           if(parseInput.items) {
-            // reset any error messages and clear current inventory
-            alertMessage('fileMessageArea', '');
+            // reset UI elements and clear current inventory
+            alertMessage('topMessageArea', '');
+            alertMessage('messageArea', '');
+            itemFormCollapse.hide();
             document.getElementById('item-list').innerHTML = '';
+            document.getElementById('saveFileBtn').classList.add('d-none');
 
             // load file content
             api.loadInventory(parseInput);
@@ -342,24 +358,24 @@
             dbFetchItems();
           }
           else {
-            alertMessage('fileMessageArea', 'Error loading file. Inventory data not found.', 'danger');
+            alertMessage('topMessageArea', 'Error loading file. Inventory data not found.', 'danger');
           }
         }
         catch(e) {
           console.error(e);
-          alertMessage('fileMessageArea', 'Error loading file. Could not read data.', 'danger');
+          alertMessage('topMessageArea', 'Error loading file. Could not read data.', 'danger');
         }
       };
 
       reader.readAsText(file);
     }
     else {
-      alertMessage('fileMessageArea', 'An error occurred while loading file. Please try again later.', 'danger');
+      alertMessage('topMessageArea', 'An error occurred while loading file. Please try again later.', 'danger');
     }
   }
 
   /**
-   * Save inventory as a text file
+   * Save inventory as a text file.
    */
   window.saveFile = () => {
     let inventory = api.fetchInventory();
@@ -371,11 +387,11 @@
     link.download = "inventory.txt";
     link.click();
 
-    document.getElementById('saveListBtn').classList.add('d-none');
+    document.getElementById('saveFileBtn').classList.add('d-none');
   }
 
   /**
-   * Update title of inventory list
+   * Update title of inventory list.
    * @param {*} el The HTML input element
    */
   window.setTitle = (el) => {
