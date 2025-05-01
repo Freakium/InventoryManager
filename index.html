@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no">
+  <title>Inventory Manager</title>
+
+  <link rel="stylesheet" href="src/bootstrap/css/bootstrap-icons.min.css">
+  <link href="src/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="src/flatpickr/css/flatpickr.min.css">
+  <link rel="icon" type="image/x-icon" href="img/favicon.ico">
+  <link rel="stylesheet" href="css/index.css">
+</head>
+
+<body>
+  <!-- NAVBAR -->
+  <nav class="navbar navbar-expand-lg navbar-info bg-dark mb-5" data-bs-theme="dark">
+    <div class="container-fluid">
+      <h5 class="text-light me-3">Inventory Manager</h5>
+      <button class="navbar-toggler ms-auto" type="button" data-bs-toggle="collapse"
+        data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
+        aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="row navbar-nav ms-auto">
+          <li class="col nav-item">
+            <button class="btn btn-sm btn-dark" id="themeBtn" onclick="toggleTheme()" title="Toggle Theme"><i class="bi bi-moon-stars-fill"></i></button>
+          </li>
+          <li class="col nav-item">
+            <a aria-label="Check My GitHub" target="_blank" rel="noopener" href="https://github.com/Freakium/"
+              title="Check My GitHub">
+              <svg id="github-logo" height="24" width="24" data-name="Logo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                fill="#fff">
+                <path
+                  d="M12.5.75C6.146.75 1 5.896 1 12.25c0 5.089 3.292 9.387 7.863 10.91.575.101.79-.244.79-.546 0-.273-.014-1.178-.014-2.142-2.889.532-3.636-.704-3.866-1.35-.13-.331-.69-1.352-1.18-1.625-.402-.216-.977-.748-.014-.762.906-.014 1.553.834 1.769 1.179 1.035 1.74 2.688 1.25 3.349.948.1-.747.402-1.25.733-1.538-2.559-.287-5.232-1.279-5.232-5.678 0-1.25.445-2.285 1.178-3.09-.115-.288-.517-1.467.115-3.048 0 0 .963-.302 3.163 1.179.92-.259 1.897-.388 2.875-.388.977 0 1.955.13 2.875.388 2.2-1.495 3.162-1.179 3.162-1.179.633 1.581.23 2.76.115 3.048.733.805 1.179 1.825 1.179 3.09 0 4.413-2.688 5.39-5.247 5.678.417.36.776 1.05.776 2.128 0 1.538-.014 2.774-.014 3.162 0 .302.216.662.79.547C20.709 21.637 24 17.324 24 12.25 24 5.896 18.854.75 12.5.75Z">
+                </path>
+              </svg>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- FILE UPLOAD -->
+  <div class="container mb-3">
+    <label for="fileInput">Load Inventory File</label>
+    <input class="form-control" id="fileInput" type="file" accept=".txt" onchange="loadFile()" autocomplete="off">
+    <div class="messageBox" id="fileMessageArea"><br></div>
+  </div>
+
+  <!-- INVENTORY LIST -->
+  <div class="container">
+    <input class="form-control form-control-lg mb-3" id="inventoryTitle" onchange="setTitle(this)" value="Inventory" autocomplete="off">
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4 mb-5" id="item-list"></div>
+  </div>
+  
+  <div class="container mb-5">
+    <hr>
+  </div>
+
+  <!-- ADD/UPDATE PANEL -->
+  <div class="container collapse bg-body-tertiary rounded-4 shadow p-5 mb-5" id="itemForm">
+    <form class="addItemForm" method="post" onsubmit="addOrUpdateItem(event);">
+      <h3 class="mb-4"><span id="itemOperation">Add</span> Item</h3>
+      <input type="hidden" id="itemId">
+      <div class="form-floating mb-3">
+        <input class="form-control" id="itemName" name="itemName" autocomplete="off">
+        <label for="itemName">Item Name</label>
+      </div>
+      <div class="form-floating mb-3">
+        <input class="form-control" id="itemType" name="itemType" autocomplete="off">
+        <label for="itemType">Item Type</label>
+      </div>
+      <div class="form-floating mb-3">
+        <input class="form-control" id="itemColour" name="itemColour" type="color" autocomplete="off">
+        <label for="itemColour">Colour</label>
+      </div>
+      <div class="form-floating mb-3">
+        <input class="form-control datepicker" id="itemDate" name="itemDate" autocomplete="off">
+        <label for="itemDate">Date/Time (24 hr)</label>
+      </div>
+      <div class="form-floating mb-3">
+        <input class="form-control" id="itemQuantity" name="itemQuantity" type="number" min="0" autocomplete="off">
+        <label for="itemQuantity">Quantity</label>
+      </div>
+      <div class="messageBox mb-3" id="itemFormMessageArea"><br></div>
+      <div class="d-flex gap-2">
+        <button class="btn btn-primary"><i class="bi bi-floppy mx-2"></i>Save</button>
+        <button class="btn btn-danger d-none" id="deleteItemBtn"><i class="bi bi-trash3 mx-2"></i>Delete</button>
+        <button class="btn btn-secondary ms-auto" onclick="closeItemForm(event)"><i class="bi bi-x-circle mx-2"></i>Close</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- MESSAGE BOX -->
+  <div class="container">
+    <div class="messageBox mb-3" id="messageArea"><br></div>
+  </div>
+
+  <!-- SAVE LIST BUTTON -->
+  <div class="container d-grid mb-3">
+    <button class="btn btn-lg btn-success d-flex justify-content-between align-items-center d-none" id="saveListBtn" onclick="saveFile()">
+      <span class="spinner-grow spinner-grow-sm"></span>
+      <span class="fw-bold"><i class="bi bi-floppy mx-2"></i>Save List</span>
+      <span class="spinner-grow spinner-grow-sm"></span>
+    </button>
+    <a class="d-none" id="downloadLink"></a>
+  </div>
+
+  <!-- DELETION MODAL -->
+  <div class="modal" tabindex="-1" id="deleteModal" aria-modal="true" role="dialog">
+    <div class="modal-dialog ">
+      <div class="modal-content">
+        <div class="modal-header text-white bg-danger">
+          <h1 class="modal-title fs-5"><i class="bi bi-trash3 mx-2"></i>Delete Item</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p>Are you sure you want to delete the <strong id="deleteItemName"></strong> item from <strong id="deleteDateTime"></strong>?</p>
+          <div class="messageBox" id="deleteModalMessageArea"></div>
+        </div>
+        <div class="modal-footer d-flex justify-content-between py-1">
+          <button type="button" class="btn btn-danger" onclick="deleteItem();"><i class="bi bi-trash3 me-1"></i>Delete</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="src/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="src/flatpickr/js/flatpickr.min.js"></script>
+  <script type="text/javascript" src="js/api.js"></script>
+  <script type="text/javascript" src="js/index.js"></script>
+</body>
+
+</html>
