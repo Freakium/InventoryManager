@@ -41,11 +41,17 @@
   /**
    * Call api to fetch a single item.
    * @param {*} id The id number of the item
+   * @param {*} isDuplicate Boolean for duplicate mode
    */
-  function dbFetchItem(id) {
+  function dbFetchItem(id, isDuplicate) {
     let item = api.fetchItem(id);
 
     if(item) {
+      // a duplicate has no id
+      if(isDuplicate) {
+        item.id = "";
+      }
+
       populateItemFields(item);
       itemFormCollapse.show();
 
@@ -66,6 +72,7 @@
    * @param {*} quantity The quantity of the item
    */
   function dbAddItem(itemName, itemType, colour, itemDate, quantity) {
+    // create new id
     let id = Date.now();
 
     if(api.addItem(id, itemName, itemType, colour, itemDate, quantity)) {
@@ -206,7 +213,10 @@
         <div class="card shadow h-100">
           <div class="card-header d-flex fw-bold text-white justify-content-between" id="${id}-header" style="background-color: ${colour}">
             <span class="d-flex align-items-center text-nowrap" id="${id}-itemName" title="Item Name">${itemName}</span>
-            <button class="btn btn-sm btn-link" onclick="updateItemOperation('${id}');"><i class="bi bi-pencil-square"></i></button>
+            <div>
+              <button class="btn btn-sm btn-link" onclick="updateItemMode('${id}', true)" title="Duplicate"><i class="bi bi-copy"></i></button>
+              <button class="btn btn-sm btn-link" onclick="updateItemMode('${id}')" title="Edit"><i class="bi bi-pencil-square"></i></button>
+            </div>
           </div>
           <div class="card-body bg-secondary-subtle">
             <span class="badge bg-primary mb-3" id="${id}-itemType" title="Item Type">${itemType}</span>
@@ -256,7 +266,7 @@
     document.getElementById('item-list').innerHTML +=
       `<div class="col" id="addItemBtn">
         <div class="card shadow h-100">
-          <button class="btn btn-lg bg-body-tertiary text-primary h-100" title="Add Item" onclick="addItemOperation();">
+          <button class="btn btn-lg bg-body-tertiary text-primary h-100" title="Add Item" onclick="addItemMode();">
             <i class="bi bi-plus-square"></i>
           </button>
         </div>
@@ -405,7 +415,7 @@
   /**
    * Sets the form to "Add Item" mode.
    */
-  window.addItemOperation = () => {
+  window.addItemMode = () => {
     document.getElementById('itemOperation').innerHTML = "Add";
 
     // clear inputs
@@ -432,9 +442,10 @@
   /**
    * Sets the form to "Update Item" mode.
    * @param {*} id The id of the item
+   * @param {*} isDuplicate Boolean for duplicate mode
    */
-  window.updateItemOperation = (id) => {
-    dbFetchItem(id);
+  window.updateItemMode = (id, isDuplicate = false) => {
+    dbFetchItem(id, isDuplicate);
   }
 
   /**
@@ -471,6 +482,15 @@
     }
     else if(itemQuantity !== "0" && !parseInt(itemQuantity)) {
       alertMessage('itemFormMessageArea', 'Please enter a valid quantity.', 'danger');
+      return;
+    }
+
+    // make sure item name is unique
+    let nameCheck = api.searchItems(itemName);
+    if(nameCheck && nameCheck.id !== id) {
+      let date = new Date(nameCheck.date);
+      let dateTime = date.toLocaleString();
+      alertMessage('itemFormMessageArea', `Item already exists and was added on <em>${dateTime}</em>`, 'danger');
       return;
     }
 

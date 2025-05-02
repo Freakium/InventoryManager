@@ -125,6 +125,16 @@ const api = (function () {
       else {
         return false;
       }
+    },
+
+    /**
+     * Search item names and returns the first match.
+     * @param {*} searchTerm The string to compare item names to
+     * @returns The first match if found
+     */
+    searchItems: (searchTerm) => {
+      let result = inventory.items.find(item => item.name.toLowerCase() === searchTerm.toLowerCase());
+      return result;
     }
   }
 })();
