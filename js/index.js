@@ -1,16 +1,19 @@
 (function () {
 
-  const itemFormCollapse = new bootstrap.Collapse('#itemForm', {
-    toggle: false
-  });
+  const itemFormCanvas = new bootstrap.Offcanvas('#itemForm');
 
   /*========================== AUTORUN ===========================*/
 
-  // Initialize date/time picker input
+  /**
+   * Initialize date/time picker input
+   */
   const dtp = flatpickr('.datepicker', {
     enableTime: true
   });
 
+  /**
+   * Run on load.
+   */
   addEventListener("load", (e) => {
     // Initial "Add Item" button in item list
     appendAddItemButton();
@@ -20,6 +23,14 @@
       toggleTheme();
     }
   });
+
+  /**
+   * Focus on item name input once the offcanvas is completely open.
+   */
+  document.getElementById('itemForm').addEventListener('shown.bs.offcanvas', e => {
+    document.getElementById('itemName').focus();
+  })
+
 
   /*======================= CRUD FUNCTIONS =======================*/
 
@@ -53,10 +64,7 @@
       }
 
       populateItemFields(item);
-      itemFormCollapse.show();
-
-      // set focus on name input
-      document.getElementById('itemName').focus();
+      itemFormCanvas.show();
     }
     else {
       alertMessage('messageArea', 'A problem occurred while fetching item. Please try again later.', 'danger');
@@ -81,7 +89,7 @@
       appendAddItemButton();
 
       // UI items
-      itemFormCollapse.hide();
+      itemFormCanvas.hide();
       alertMessage('messageArea', 'Item successfully added!', 'success', 3);
       document.getElementById('saveFileBtn').classList.remove('d-none');
     }
@@ -104,7 +112,7 @@
       updateItemCard(id, itemName, itemType, colour, itemDate, quantity);
       
       // UI items
-      itemFormCollapse.hide();
+      itemFormCanvas.hide();
       alertMessage('messageArea', 'Item successfully updated!', 'success', 3);
       document.getElementById('saveFileBtn').classList.remove('d-none');
     }
@@ -126,7 +134,7 @@
       // hide modal and hide item form
       let modal = bootstrap.Modal.getInstance(document.getElementById('deleteModal'));
       modal.hide();
-      itemFormCollapse.hide();
+      itemFormCanvas.hide();
 
       alertMessage('messageArea', 'Item successfully deleted!', 'success', 3);
       document.getElementById('saveFileBtn').classList.remove('d-none');
@@ -358,7 +366,7 @@
             // reset UI elements and clear current inventory
             alertMessage('topMessageArea', '');
             alertMessage('messageArea', '');
-            itemFormCollapse.hide();
+            itemFormCanvas.hide();
             document.getElementById('item-list').innerHTML = '';
             document.getElementById('saveFileBtn').classList.add('d-none');
 
@@ -433,10 +441,7 @@
     document.getElementById('deleteItemBtn').removeAttribute('onclick');
 
     // show the item form
-    itemFormCollapse.show();
-
-    // set focus on name input
-    document.getElementById('itemName').focus();
+    itemFormCanvas.show();
   }
 
   /**
@@ -528,14 +533,5 @@
   window.deleteItem = () => {
     let id = document.getElementById('deleteModal').getAttribute('data-id');
     dbDeleteItem(id);
-  }
-
-  /**
-   * Collapse the item form.
-   * @param {*} event The form's event
-   */
-  window.closeItemForm = (event) => {
-    event.preventDefault();
-    itemFormCollapse.hide();
   }
 })();

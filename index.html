@@ -56,37 +56,44 @@
   </div>
 
   <!-- ADD/UPDATE PANEL -->
+  <div class="offcanvas offcanvas-end" tabindex="-1" id="itemForm" aria-labelledby="itemFormLabel">
+    <div class="offcanvas-header bg-primary-subtle">
+      <h5 class="offcanvas-title" id="itemFormLabel"><span id="itemOperation">Add</span> Item</h5>
+      <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body">
+      <form method="post" onsubmit="addOrUpdateItem(event);">
+        <input type="hidden" id="itemId">
+        <div class="form-floating mb-3">
+          <input class="form-control" id="itemName" name="itemName" autocomplete="off">
+          <label for="itemName">Item Name</label>
+        </div>
+        <div class="form-floating mb-3">
+          <input class="form-control" id="itemType" name="itemType" autocomplete="off">
+          <label for="itemType">Item Type</label>
+        </div>
+        <div class="form-floating mb-3">
+          <input class="form-control" id="itemColour" name="itemColour" type="color" autocomplete="off">
+          <label for="itemColour">Colour</label>
+        </div>
+        <div class="form-floating mb-3">
+          <input class="form-control datepicker" id="itemDate" name="itemDate" autocomplete="off">
+          <label for="itemDate">Date/Time (24 hr)</label>
+        </div>
+        <div class="form-floating mb-3">
+          <input class="form-control" id="itemQuantity" name="itemQuantity" type="number" min="0" autocomplete="off">
+          <label for="itemQuantity">Quantity</label>
+        </div>
+        <div class="messageBox mb-3" id="itemFormMessageArea"><br></div>
+        <div class="d-flex justify-content-between">
+          <button class="btn btn-primary"><i class="bi bi-floppy mx-2"></i>Save</button>
+          <button class="btn btn-danger d-none" id="deleteItemBtn"><i class="bi bi-trash3 mx-2"></i>Delete</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <div class="container collapse bg-body-tertiary rounded-4 shadow p-5 mb-5" id="itemForm">
-    <form method="post" onsubmit="addOrUpdateItem(event);">
-      <h3 class="mb-4"><span id="itemOperation">Add</span> Item</h3>
-      <input type="hidden" id="itemId">
-      <div class="form-floating mb-3">
-        <input class="form-control" id="itemName" name="itemName" autocomplete="off">
-        <label for="itemName">Item Name</label>
-      </div>
-      <div class="form-floating mb-3">
-        <input class="form-control" id="itemType" name="itemType" autocomplete="off">
-        <label for="itemType">Item Type</label>
-      </div>
-      <div class="form-floating mb-3">
-        <input class="form-control" id="itemColour" name="itemColour" type="color" autocomplete="off">
-        <label for="itemColour">Colour</label>
-      </div>
-      <div class="form-floating mb-3">
-        <input class="form-control datepicker" id="itemDate" name="itemDate" autocomplete="off">
-        <label for="itemDate">Date/Time (24 hr)</label>
-      </div>
-      <div class="form-floating mb-3">
-        <input class="form-control" id="itemQuantity" name="itemQuantity" type="number" min="0" autocomplete="off">
-        <label for="itemQuantity">Quantity</label>
-      </div>
-      <div class="messageBox mb-3" id="itemFormMessageArea"><br></div>
-      <div class="d-flex gap-2">
-        <button class="btn btn-primary"><i class="bi bi-floppy mx-2"></i>Save</button>
-        <button class="btn btn-danger d-none" id="deleteItemBtn"><i class="bi bi-trash3 mx-2"></i>Delete</button>
-        <button class="btn btn-secondary ms-auto" onclick="closeItemForm(event)"><i class="bi bi-x-circle mx-2"></i>Close</button>
-      </div>
-    </form>
   </div>
 
   <!-- MESSAGE BOX -->
@@ -117,8 +124,7 @@
           <div class="messageBox" id="deleteModalMessageArea"></div>
         </div>
         <div class="modal-footer d-flex justify-content-between py-1">
-          <button type="button" class="btn btn-danger" onclick="deleteItem();"><i class="bi bi-trash3 me-1"></i>Delete</button>
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-danger ms-auto" onclick="deleteItem();"><i class="bi bi-trash3 me-1"></i>Delete</button>
         </div>
       </div>
     </div>
