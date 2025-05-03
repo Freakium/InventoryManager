@@ -31,7 +31,6 @@
     document.getElementById('itemName').focus();
   })
 
-
   /*======================= CRUD FUNCTIONS =======================*/
 
   /**
