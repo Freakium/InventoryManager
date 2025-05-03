@@ -64,6 +64,7 @@
       }
 
       populateItemFields(item);
+      alertMessage('itemFormMessageArea', '');
       itemFormCanvas.show();
     }
     else {
@@ -92,6 +93,9 @@
       itemFormCanvas.hide();
       alertMessage('messageArea', 'Item successfully added!', 'success', 3);
       document.getElementById('saveFileBtn').classList.remove('d-none');
+      window.onbeforeunload = (event) => {
+        return event;
+      };
     }
     else {
       alertMessage('itemFormMessageArea', 'A problem occurred while adding item. Please try again later.', 'danger');
@@ -115,6 +119,9 @@
       itemFormCanvas.hide();
       alertMessage('messageArea', 'Item successfully updated!', 'success', 3);
       document.getElementById('saveFileBtn').classList.remove('d-none');
+      window.onbeforeunload = (event) => {
+        return event;
+      };
     }
     else {
       alertMessage('itemFormMessageArea', 'A problem occurred while updating item. Please try again later.', 'danger');
@@ -138,6 +145,9 @@
 
       alertMessage('messageArea', 'Item successfully deleted!', 'success', 3);
       document.getElementById('saveFileBtn').classList.remove('d-none');
+      window.onbeforeunload = (event) => {
+        return event;
+      };
     }
     else {
       alertMessage('deleteModalMessageArea', errorMsg, 'danger');
@@ -369,6 +379,7 @@
             itemFormCanvas.hide();
             document.getElementById('item-list').innerHTML = '';
             document.getElementById('saveFileBtn').classList.add('d-none');
+            window.onbeforeunload = null;
 
             // load file content
             api.loadInventory(parseInput);
@@ -406,6 +417,7 @@
     link.click();
 
     document.getElementById('saveFileBtn').classList.add('d-none');
+    window.onbeforeunload = null;
   }
 
   /**
