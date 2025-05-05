@@ -17,3 +17,9 @@
 #item-list .card {
   min-height: 221px;
 }
+
+#messageArea {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+}

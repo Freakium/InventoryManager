@@ -28,7 +28,7 @@ const api = (function () {
      * @returns array of items as JSON objects
      */
     fetchItems: () => {
-      return inventory.items;
+      return [...inventory.items];
     },
 
     /**
@@ -37,7 +37,7 @@ const api = (function () {
      * @returns item
      */
     fetchItem: (id) => {
-      return inventory.items.find(el => el.id == id);
+      return {...inventory.items.find(el => el.id == id)};
     },
 
     /**
@@ -135,6 +135,15 @@ const api = (function () {
     searchItems: (searchTerm) => {
       let result = inventory.items.find(item => item.name.toLowerCase() === searchTerm.toLowerCase());
       return result;
+    },
+
+    /**
+     * Sort inventory by type followed by name.
+     * @returns The sorted inventory
+     */
+    sortItems: () => {
+      inventory.items.sort((a,b) => a.type.localeCompare(b.type) || a.name.localeCompare(b.name));
+      return [...inventory.items];
     }
   }
 })();

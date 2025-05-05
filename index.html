@@ -35,6 +35,9 @@
             <button class="nav-link text-start" role="button" onclick="saveFile()" title="Save File"><i class="bi bi-floppy-fill mx-2"></i>Save File</button>
           </li>
           <li class="nav-item d-grid">
+            <button class="nav-link text-start" role="button" onclick="sortItems()" title="Sort Items"><i class="bi bi-sort-alpha-down mx-2"></i>Sort</button>
+          </li>
+          <li class="nav-item d-grid">
             <button class="nav-link text-start" id="themeBtn" role="button" onclick="toggleTheme()" title="Toggle Theme">
               <i class="bi bi-moon-stars-fill mx-2"></i>Dark Mode
             </button>
@@ -44,18 +47,10 @@
     </div>
   </nav>
 
-  <!-- MESSAGE BOX -->
-  <div class="container messageBox my-3" id="topMessageArea"><br></div>
-
   <!-- INVENTORY LIST -->
-  <div class="container">
+  <div class="container mt-3">
     <input class="form-control form-control-lg mb-3" id="inventoryTitle" onchange="setTitle(this)" value="Inventory" autocomplete="off">
     <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4 mb-5" id="item-list"></div>
-  </div>
-
-  <!-- MESSAGE BOX -->
-  <div class="container">
-    <div class="messageBox mb-3" id="messageArea"><br></div>
   </div>
 
   <!-- SAVE LIST BUTTON -->
@@ -81,9 +76,12 @@
     <span class="ms-1"><script>document.write(` Freakium ${/\d{4}/.exec(Date())[0]}`)</script></span>
   </footer>
 
+  <!-- MESSAGE AREA -->
+  <div id="messageArea"></div>
+
   <!-- ADD/UPDATE PANEL -->
   <div class="offcanvas offcanvas-end" tabindex="-1" id="itemForm" aria-labelledby="itemFormLabel">
-    <div class="offcanvas-header bg-primary-subtle">
+    <div class="offcanvas-header" id="itemFormHeader">
       <h5 class="offcanvas-title" id="itemFormLabel"><span id="itemOperation">Add</span> Item</h5>
       <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
     </div>

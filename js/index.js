@@ -41,7 +41,7 @@
 
     // check if file has correct contents
     if(!items) {
-      alertMessage('topMessageArea', 'A problem occurred while loading file. Please make sure you are loading the correct inventory file.', 'danger');
+      alertMessage('messageArea', 'A problem occurred while loading file. Please make sure you are loading the correct inventory file.', 'danger', 3);
       return;
     }
 
@@ -56,18 +56,20 @@
   function dbFetchItem(id, isDuplicate) {
     let item = api.fetchItem(id);
 
-    if(item) {
+    // item found
+    if(item.id) {
       // a duplicate has no id
       if(isDuplicate) {
         item.id = "";
       }
 
-      populateItemFields(item);
+      populateItemFields(item, isDuplicate);
       alertMessage('itemFormMessageArea', '');
       itemFormCanvas.show();
     }
     else {
-      alertMessage('messageArea', 'A problem occurred while fetching item. Please try again later.', 'danger');
+      console.error(id, api.fetchItems());
+      alertMessage('messageArea', 'Item not found.', 'danger', 3);
     }
   }
 
@@ -161,7 +163,7 @@
 
     // check if file has correct contents
     if(!title) {
-      alertMessage('topMessageArea', 'A problem occurred while loading file. Please make sure you are loading the correct inventory file.', 'danger');
+      alertMessage('messageArea', 'A problem occurred while loading file. Please make sure you are loading the correct inventory file.', 'danger', 3);
       return;
     }
 
@@ -190,10 +192,13 @@
   /**
    * Fill the inputs of the form with a item's information.
    * @param {*} item A single item JSON object
+   * @param {*} isDuplicate Boolean for duplicate mode
    */
-  function populateItemFields(item) {
-    document.getElementById('itemOperation').innerHTML = "Update";
+  function populateItemFields(item, isDuplicate) {
+    // set header
+    document.getElementById('itemOperation').innerHTML = isDuplicate ? "Duplicate" : "Update";
 
+    // clear inputs
     document.getElementById('itemId').value = item.id;
     document.getElementById('itemName').value = item.name;
     document.getElementById('itemType').value = item.type;
@@ -205,11 +210,14 @@
     let dateTime = date.toLocaleString();
     dtp.setDate(date);
 
-    // show delete button
-    document.getElementById('deleteItemBtn').classList.remove('d-none');
-    document.getElementById('deleteItemBtn').setAttribute('onclick', `showDeleteModal(event, '${item.id}', '${item.name}', '${dateTime}');`);
-
-    document.getElementById('itemName').focus();
+    if(isDuplicate) {
+      formHeaderColour('warning');
+    }
+    else {
+      document.getElementById('deleteItemBtn').classList.remove('d-none');
+      document.getElementById('deleteItemBtn').setAttribute('onclick', `showDeleteModal(event, '${item.id}', '${item.name}', '${dateTime}');`);
+      formHeaderColour('primary');
+    }
   }
 
   /**
@@ -315,7 +323,7 @@
     let icon = colour === 'success' ? 'bi bi-check-circle' : 'bi bi-exclamation-triangle';
     let content =
       `<div class="alert alert-${colour} alert-dismissible fade show d-flex mx-auto shadow py-2" role="alert">
-        <i class="${icon}"></i><span class="fw-bold mx-auto text-center">${message}</span>
+        <i class="${icon} me-2"></i><span class="fw-bold mx-auto text-center">${message}</span>
         ${timer ? "" : `<button type="button" class="btn-close pt-1" data-bs-dismiss="alert" aria-label="Close"></button>`}
       </div>`;
 
@@ -330,6 +338,15 @@
     }
   }
 
+  /**
+   * Clears all previous header colours and sets the item form header to designated colour.
+   * @param {*} colour The designated colour
+   */
+  function formHeaderColour(colour) {
+    document.getElementById('itemFormHeader').classList.remove('bg-primary-subtle', 'bg-success-subtle', 'bg-warning-subtle');
+    document.getElementById('itemFormHeader').classList.add(`bg-${colour}-subtle`);
+  }
+
   /*====================== LISTENER FUNCTIONS ====================*/
 
   /**
@@ -337,23 +354,6 @@
    */
   window.loadFileListener = () => {
     document.getElementById('fileInput').click();
-  },
-
-  /**
-   * Toggles the theme.
-   */
-  window.toggleTheme = () => {
-    const btn = document.getElementById('themeBtn');
-    let html = document.documentElement;
-
-    if(html.hasAttribute('data-bs-theme')) {
-      html.removeAttribute('data-bs-theme');
-      btn.innerHTML = `<i class="bi bi-moon-stars-fill mx-2"></i>Dark Mode`;
-    }
-    else {
-      html.setAttribute('data-bs-theme', 'dark');
-      btn.innerHTML = `<i class="bi bi-brightness-high-fill mx-2"></i>Light Mode`;
-    }
   },
 
   /**
@@ -373,7 +373,6 @@
 
           if(parseInput.items) {
             // reset UI elements and clear current inventory
-            alertMessage('topMessageArea', '');
             alertMessage('messageArea', '');
             itemFormCanvas.hide();
             document.getElementById('item-list').innerHTML = '';
@@ -386,19 +385,19 @@
             dbFetchItems();
           }
           else {
-            alertMessage('topMessageArea', 'Error loading file. Inventory data not found.', 'danger');
+            alertMessage('messageArea', 'Error loading file. Inventory data not found.', 'danger', 3);
           }
         }
         catch(e) {
           console.error(e);
-          alertMessage('topMessageArea', 'Error loading file. Could not read data.', 'danger');
+          alertMessage('messageArea', 'Error loading file. Could not read data.', 'danger', 3);
         }
       };
 
       reader.readAsText(file);
     }
     else {
-      alertMessage('topMessageArea', 'An error occurred while loading file. Please try again later.', 'danger');
+      alertMessage('messageArea', 'File not found.', 'danger', 3);
     }
   }
 
@@ -418,6 +417,34 @@
     document.getElementById('saveFileBtn').classList.add('d-none');
     window.onbeforeunload = null;
   }
+
+  window.sortItems = () => {
+    if(!api.fetchItems().length) return;
+
+    let sortedItems = api.sortItems();
+
+    document.getElementById('item-list').innerHTML = '';
+    renderItems(sortedItems);
+    
+    document.getElementById('saveFileBtn').classList.remove('d-none');
+  },
+
+  /**
+   * Toggles the theme.
+   */
+  window.toggleTheme = () => {
+    const btn = document.getElementById('themeBtn');
+    let html = document.documentElement;
+
+    if(html.hasAttribute('data-bs-theme')) {
+      html.removeAttribute('data-bs-theme');
+      btn.innerHTML = `<i class="bi bi-moon-stars-fill mx-2"></i>Dark Mode`;
+    }
+    else {
+      html.setAttribute('data-bs-theme', 'dark');
+      btn.innerHTML = `<i class="bi bi-brightness-high-fill mx-2"></i>Light Mode`;
+    }
+  },
 
   /**
    * Update title of inventory list.
@@ -450,6 +477,12 @@
     // hide delete button
     document.getElementById('deleteItemBtn').classList.add('d-none');
     document.getElementById('deleteItemBtn').removeAttribute('onclick');
+
+    // change header colour
+    formHeaderColour('success');
+
+    // reset message area
+    alertMessage('itemFormMessageArea', '');
 
     // show the item form
     itemFormCanvas.show();
