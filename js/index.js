@@ -270,9 +270,9 @@
     let date = new Date(itemDate);
     let dateTime = date.toLocaleString();
 
-    document.getElementById(`${id}-itemName`).value = itemName;
+    document.getElementById(`${id}-itemName`).innerHTML = itemName;
     document.getElementById(`${id}-itemType`).innerHTML = itemType;
-    document.getElementById(`${id}-quantity`).innerHTML = quantity;
+    document.getElementById(`${id}-quantity`).value = quantity;
     document.getElementById(`${id}-itemDate`).innerHTML = dateTime;
 
     // set header colour
@@ -510,7 +510,7 @@
     let itemType = event.target.itemType.value;
     let itemColour = event.target.itemColour.value;
     let itemDate = event.target.itemDate.value;
-    let itemQuantity = event.target.itemQuantity.value;
+    let itemQuantity = parseInt(event.target.itemQuantity.value);
 
     // Validations
     if (!itemName) {
@@ -525,12 +525,12 @@
       alertMessage('itemFormMessageArea', 'Please select a colour.', 'danger');
       return;
     }
-    else if (!itemDate) {
-      alertMessage('itemFormMessageArea', 'Please select a date.', 'danger');
+    else if(!itemQuantity && itemQuantity !== 0) {
+      alertMessage('itemFormMessageArea', 'Please enter a valid quantity.', 'danger');
       return;
     }
-    else if(itemQuantity !== "0" && !parseInt(itemQuantity)) {
-      alertMessage('itemFormMessageArea', 'Please enter a valid quantity.', 'danger');
+    else if (!itemDate) {
+      alertMessage('itemFormMessageArea', 'Please select a date.', 'danger');
       return;
     }
 
