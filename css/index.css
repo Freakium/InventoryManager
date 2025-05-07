@@ -2,6 +2,10 @@
   color: #fff;
 }
 
+.sortable-placeholder {
+  border: 2px dashed #31a331;
+}
+
 .messageBox {
   min-height: 42px;
 }
@@ -16,6 +20,11 @@
 
 #item-list .card {
   min-height: 221px;
+  transition: 0.3s;
+}
+
+#item-list .card-header {
+  cursor: move;
 }
 
 #messageArea {

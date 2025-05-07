@@ -112,6 +112,14 @@ const api = (function () {
     },
 
     /**
+     * Update entire inventory of items.
+     * @param {*} items The item list
+     */
+    updateItems: (items) => {
+      inventory.items = items;
+    },
+
+    /**
      * Delete an item from the item list.
      * @param {*} id The id number of the item
      * @returns boolean response

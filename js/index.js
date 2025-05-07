@@ -19,9 +19,41 @@
     appendAddItemButton();
 
     // set to dark mode if system theme is dark
-    if(window.matchMedia('(prefers-color-scheme: dark)').matches) {
+    if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
       toggleTheme();
     }
+
+    $('#item-list').sortable({
+      items: `.col:not('#addItemBtn')`,
+      opacity: 0.8,
+      placeholder: 'sortable-placeholder',
+      stop: function (event, ui) {
+        let selected = ui.item[0];
+        let itemList = api.fetchItems();
+
+        // get item's previous index
+        let selectedId = selected.id;
+        let curIndex = itemList.findIndex(el => el.id.toString() === selectedId);
+        if(curIndex > -1) {
+          // get item's current index
+          let sortIndex = [...document.getElementById('item-list').querySelectorAll('.col')].indexOf(selected);
+          
+          // item position changed
+          if(sortIndex !== curIndex) {
+            // update item position
+            let item = itemList.splice(curIndex, 1)[0];
+            itemList.splice(sortIndex, 0, item);
+            api.updateItems(itemList);
+
+            // show save button
+            document.getElementById('saveFileBtn').classList.remove('d-none');
+          }
+        }
+        else {
+          alertMessage('messageArea', 'Sorting error. Item not found.', 'danger', 3);
+        }
+      }
+    });
   });
 
   /**
@@ -40,7 +72,7 @@
     let items = api.fetchItems();
 
     // check if file has correct contents
-    if(!items) {
+    if (!items) {
       alertMessage('messageArea', 'A problem occurred while loading file. Please make sure you are loading the correct inventory file.', 'danger', 3);
       return;
     }
@@ -57,9 +89,9 @@
     let item = api.fetchItem(id);
 
     // item found
-    if(item.id) {
+    if (item.id) {
       // a duplicate has no id
-      if(isDuplicate) {
+      if (isDuplicate) {
         item.id = "";
       }
 
@@ -85,7 +117,7 @@
     // create new id
     let id = Date.now();
 
-    if(api.addItem(id, itemName, itemType, colour, itemDate, quantity)) {
+    if (api.addItem(id, itemName, itemType, colour, itemDate, quantity)) {
       // Add item to item list
       createItemCard(id, itemName, itemType, colour, itemDate, quantity);
       appendAddItemButton();
@@ -113,9 +145,9 @@
    * @param {*} quantity The quantity of the item
    */
   function dbUpdateItem(id, itemName, itemType, colour, itemDate, quantity) {
-    if(api.updateItem(id, itemName, itemType, colour, itemDate, quantity)) {
+    if (api.updateItem(id, itemName, itemType, colour, itemDate, quantity)) {
       updateItemCard(id, itemName, itemType, colour, itemDate, quantity);
-      
+
       // UI items
       itemFormCanvas.hide();
       alertMessage('messageArea', 'Item successfully updated!', 'success', 3);
@@ -136,8 +168,8 @@
   function dbDeleteItem(id) {
     let errorMsg = 'A problem occurred while deleting item. Please try again later.';
 
-    if(api.deleteItem(id)) {
-      document.getElementById(`item-${id}`).remove();
+    if (api.deleteItem(id)) {
+      document.getElementById(`${id}`).remove();
 
       // hide modal and hide item form
       let modal = bootstrap.Modal.getInstance(document.getElementById('deleteModal'));
@@ -162,7 +194,7 @@
     let title = api.fetchTitle();
 
     // check if file has correct contents
-    if(!title) {
+    if (!title) {
       alertMessage('messageArea', 'A problem occurred while loading file. Please make sure you are loading the correct inventory file.', 'danger', 3);
       return;
     }
@@ -210,7 +242,7 @@
     let dateTime = date.toLocaleString();
     dtp.setDate(date);
 
-    if(isDuplicate) {
+    if (isDuplicate) {
       formHeaderColour('warning');
     }
     else {
@@ -234,7 +266,7 @@
     let dateTime = date.toLocaleString();
 
     document.getElementById('item-list').innerHTML +=
-      `<div class="col" id="item-${id}">
+      `<div class="col" id="${id}">
         <div class="card shadow h-100">
           <div class="card-header d-flex fw-bold text-white justify-content-between" id="${id}-header" style="background-color: ${colour}">
             <span class="d-flex align-items-center text-nowrap" id="${id}-itemName" title="Item Name">${itemName}</span>
@@ -314,7 +346,7 @@
       return;
 
     // reset the message display area
-    if(message.length === 0) {
+    if (message.length === 0) {
       document.getElementById(id).innerHTML = '<br>';
       return;
     }
@@ -361,17 +393,17 @@
    */
   window.loadFile = () => {
     const file = document.getElementById('fileInput').files[0];
-    if(file) {
+    if (file) {
       const reader = new FileReader();
 
       reader.onload = (e) => {
         const fileContent = e.target.result;
-        
+
         // Try to parse file content
         try {
           let parseInput = JSON.parse(fileContent);
 
-          if(parseInput.items) {
+          if (parseInput.items) {
             // reset UI elements and clear current inventory
             alertMessage('messageArea', '');
             itemFormCanvas.hide();
@@ -388,7 +420,7 @@
             alertMessage('messageArea', 'Error loading file. Inventory data not found.', 'danger', 3);
           }
         }
-        catch(e) {
+        catch (e) {
           console.error(e);
           alertMessage('messageArea', 'Error loading file. Could not read data.', 'danger', 3);
         }
@@ -419,13 +451,13 @@
   }
 
   window.sortItems = () => {
-    if(!api.fetchItems().length) return;
+    if (!api.fetchItems().length) return;
 
     let sortedItems = api.sortItems();
 
     document.getElementById('item-list').innerHTML = '';
     renderItems(sortedItems);
-    
+
     document.getElementById('saveFileBtn').classList.remove('d-none');
   },
 
@@ -436,7 +468,7 @@
     const btn = document.getElementById('themeBtn');
     let html = document.documentElement;
 
-    if(html.hasAttribute('data-bs-theme')) {
+    if (html.hasAttribute('data-bs-theme')) {
       html.removeAttribute('data-bs-theme');
       btn.innerHTML = `<i class="bi bi-moon-stars-fill mx-2"></i>Dark Mode`;
     }
@@ -451,7 +483,7 @@
    * @param {*} el The HTML input element
    */
   window.setTitle = (el) => {
-    if(!el.value) {
+    if (!el.value) {
       el.value = "Inventory";
     }
 
@@ -525,7 +557,7 @@
       alertMessage('itemFormMessageArea', 'Please select a colour.', 'danger');
       return;
     }
-    else if(!itemQuantity && itemQuantity !== 0) {
+    else if (!itemQuantity && itemQuantity !== 0) {
       alertMessage('itemFormMessageArea', 'Please enter a valid quantity.', 'danger');
       return;
     }
@@ -536,7 +568,7 @@
 
     // make sure item name is unique
     let nameCheck = api.searchItems(itemName);
-    if(nameCheck && nameCheck.id !== id) {
+    if (nameCheck && nameCheck.id !== id) {
       let date = new Date(nameCheck.date);
       let dateTime = date.toLocaleString();
       alertMessage('itemFormMessageArea', `Item already exists and was added on <em>${dateTime}</em>`, 'danger');
