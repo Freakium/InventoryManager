@@ -257,6 +257,8 @@
     dtp.setDate(date);
 
     if (isDuplicate) {
+      document.getElementById('deleteItemBtn').classList.add('d-none');
+      document.getElementById('deleteItemBtn').removeAttribute('onclick');
       formHeaderColour('warning');
     }
     else {
