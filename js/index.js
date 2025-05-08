@@ -1,6 +1,10 @@
 (function () {
 
+  // off canvas element for CRUD form
   const itemFormCanvas = new bootstrap.Offcanvas('#itemForm');
+  
+  // counts number of non-sort item drags before displaying help message
+  let sortHelpCounter = 4;
 
   /*========================== AUTORUN ===========================*/
 
@@ -34,12 +38,22 @@
         // get item's previous index
         let selectedId = selected.id;
         let curIndex = itemList.findIndex(el => el.id.toString() === selectedId);
-        if(curIndex > -1) {
+        if (curIndex > -1) {
           // get item's current index
           let sortIndex = [...document.getElementById('item-list').querySelectorAll('.col')].indexOf(selected);
-          
+
+          // item position unchanged
+          if (sortIndex === curIndex) {
+            if (!sortHelpCounter) {
+              alertMessage('messageArea', "If you are having issues scrolling on mobile, place your finger on an item's quantity box to scroll the page.", 'warning', 10);
+              sortHelpCounter = 4;
+            }
+            else {
+              sortHelpCounter--;
+            }
+          }
           // item position changed
-          if(sortIndex !== curIndex) {
+          else {
             // update item position
             let item = itemList.splice(curIndex, 1)[0];
             itemList.splice(sortIndex, 0, item);
@@ -501,7 +515,7 @@
     document.getElementById('itemName').value = "";
     document.getElementById('itemType').value = "";
     document.getElementById('itemColour').value = "";
-    document.getElementById('itemQuantity').value = "0";
+    document.getElementById('itemQuantity').value = "";
 
     // clear datepicker
     dtp.clear();
