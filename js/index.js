@@ -6,6 +6,9 @@
   // counts number of non-sort item drags before displaying help message
   let sortHelpCounter = 4;
 
+  // the selected currency
+  let currencySymbol = '$';
+
   /*========================== AUTORUN ===========================*/
 
   /**
@@ -76,6 +79,21 @@
    */
   document.getElementById('itemForm').addEventListener('shown.bs.offcanvas', e => {
     document.getElementById('itemName').focus();
+  })
+
+  /**
+   * Listener to change currency symbol.
+   */
+  document.getElementById('currencySymbolSelect').addEventListener('change', e => {
+    const selected = e.target.value;
+
+    // change all instances of currency symbol
+    document.querySelectorAll('.currency-symbol').forEach((el) => {
+      el.innerHTML = selected;
+    });
+
+    // update currency symbol
+    currencySymbol = selected;
   })
 
   /**
@@ -267,7 +285,7 @@
     document.getElementById('itemType').value = item.type;
     document.getElementById('itemColour').value = item.colour;
     document.getElementById('itemQuantity').value = item.quantity;
-    document.getElementById('itemPrice').value = item.price;
+    document.getElementById('itemPrice').value = item.price === 0 ? '' : item.price;
 
     // parse date
     let date = new Date(item.date);
@@ -297,8 +315,8 @@
    * @param {*} price The optional price of the item
    */
   function createItemCard(id, itemName, itemType, colour, quantity, itemDate, price) {
-    let date = new Date(itemDate);
-    let dateTime = date.toLocaleString();
+    const date = new Date(itemDate);
+    const dateTime = date.toLocaleString();
 
     document.getElementById('item-list').innerHTML +=
       `<div class="col" id="${id}">
@@ -311,9 +329,11 @@
             </div>
           </div>
           <div class="card-body bg-secondary-subtle">
-            <div class="d-flex justify-content-between">
-              <span class="badge bg-primary mb-3" id="${id}-itemType" title="Item Type">${itemType}</span>
-              <span class="badge bg-success mb-3 badge-price ${price ? '' : 'd-none'}" id="${id}-itemPrice" title="Item Price">${price}</span>
+            <div class="d-flex justify-content-between mb-3">
+              <span class="badge bg-primary" id="${id}-itemType" title="Item Type">${itemType}</span>
+              <span class="badge bg-success badge-price${price ? '' : ' d-none'}" id="${id}-itemPrice" data-price="${price ?? 0}" title="Item Price">
+                <span class="currency-symbol">${currencySymbol}</span>${currencyFormat(price ?? 0)}
+              </span>
             </div>
             <div class="form-floating shadow">
               <input class="form-control" id="${id}-quantity" value="${quantity}" title="Quantity" disabled>
@@ -348,7 +368,8 @@
     
     // update price and display
     let priceEl = document.getElementById(`${id}-itemPrice`);
-    priceEl.innerHTML = price;
+    priceEl.setAttribute('data-price', price);
+    priceEl.innerHTML = `<span class="currency-symbol">${currencySymbol}</span>${currencyFormat(price)}`;
     price ? priceEl.classList.remove('d-none') : priceEl.classList.add('d-none');
 
     // set header colour
@@ -357,15 +378,24 @@
 
   /**
    * Calculates the total price of all items and shows/hides the total price display.
+   * @param {*} newPrice New price to add to total
    */
-  function calculateTotal() {
+  function calculateTotal(newPrice) {
     let total = 0;
+
+    // fetch all prices from badge prices in DOM
     document.querySelectorAll('.badge-price').forEach((el) => {
-      let price = parseFloat(el.innerHTML);
+      let price = parseFloat(el.getAttribute('data-price'));
       if(!isNaN(price)) {
         total += price;
       }
     });
+
+    // add new price to total
+    if(newPrice) {
+      total += newPrice;
+    }
+
     displayTotal(total);
   }
 
@@ -442,13 +472,22 @@
    */
   function displayTotal(total) {
     if(total) {
-      document.getElementById('totalAmount').innerHTML = total.toFixed(2);
+      document.getElementById('totalAmount').innerHTML = `<span class="currency-symbol">${currencySymbol}</span>${currencyFormat(total)}`;
       document.getElementById('totalArea').classList.remove('d-none');
     }
     else {
       document.getElementById('totalAmount').innerHTML = '';
       document.getElementById('totalArea').classList.add('d-none');
     }
+  }
+
+  /**
+   * Converts a float number to US currency format.
+   * @param {*} price The float price amount
+   * @returns The formatted US currency amount
+   */
+  function currencyFormat(price) {
+    return price.toLocaleString('en-US', {minimumFractionDigits: 2});
   }
 
   /*====================== LISTENER FUNCTIONS ====================*/
@@ -628,9 +667,13 @@
     let itemType = event.target.itemType.value;
     let itemColour = event.target.itemColour.value;
     let itemDate = event.target.itemDate.value;
-    let itemQuantity = parseInt(event.target.itemQuantity.value);
+
+    // parsing
+    let itemQuantity = event.target.itemQuantity.value;
+    let parseQuantity = parseInt(itemQuantity);
     let itemPrice = event.target.itemPrice.value;
-    let priceCheck = parseFloat(itemPrice);
+    let parsePrice = parseFloat(itemPrice);
+    let date = new Date(itemDate);
 
     // Validations
     if (!itemName) {
@@ -645,15 +688,15 @@
       alertMessage('itemFormMessageArea', 'Please select a colour.', 'danger');
       return;
     }
-    else if (!itemQuantity && itemQuantity !== 0) {
+    else if (isNaN(parseQuantity) && itemQuantity !== '') {
       alertMessage('itemFormMessageArea', 'Please enter a valid quantity.', 'danger');
       return;
     }
-    else if (!itemDate) {
-      alertMessage('itemFormMessageArea', 'Please select a date.', 'danger');
+    else if (itemDate && !date) {
+      alertMessage('itemFormMessageArea', 'Please enter a valid date.', 'danger');
       return;
     }
-    else if (itemPrice && (isNaN(priceCheck) || priceCheck < 0)) {
+    else if (itemPrice && (isNaN(parsePrice) || parsePrice < 0)) {
       alertMessage('itemFormMessageArea', 'Please enter a valid price.', 'danger');
       return;
     }
@@ -667,17 +710,19 @@
       return;
     }
 
-    // parse date
-    let date = new Date(itemDate);
+    // if no date selected, use current date/time
+    if(!itemDate) {
+      date = new Date();
+    }
     let dateSplit = date.toISOString().split('.');
     let dateTime = dateSplit[0] + 'Z';
 
-    // remove price if value is 0
-    itemPrice = priceCheck === 0 ? '' : itemPrice;
+    // if blank quantity, default to 1
+    parseQuantity = itemQuantity === '' ? 1 : parseQuantity;
 
     id > 0
-      ? dbUpdateItem(id, itemName, itemType, itemColour, itemQuantity, dateTime, itemPrice)
-      : dbAddItem(itemName, itemType, itemColour, itemQuantity, dateTime, itemPrice);
+      ? dbUpdateItem(id, itemName, itemType, itemColour, parseQuantity, dateTime, parsePrice)
+      : dbAddItem(itemName, itemType, itemColour, parseQuantity, dateTime, parsePrice);
   }
 
   /**

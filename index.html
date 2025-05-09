@@ -36,21 +36,39 @@
             <button class="nav-link text-start" role="button" onclick="saveFile()" title="Save File"><i class="bi bi-floppy-fill mx-2"></i>Save File</button>
           </li>
           <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-            <i class="bi bi-filter-left mx-2"></i>Sort
-          </a>
-          <ul class="dropdown-menu">
-            <li>
-              <button class="nav-link text-start" role="button" onclick="sortItems()" title="Sort Items"><i class="bi bi-sort-alpha-down mx-2"></i>By Alphabet</button>
-            </li>
-            <li>
-              <button class="nav-link text-start" role="button" onclick="sortItems('1')" title="Sort Items"><i class="bi bi-sort-alpha-down mx-2"></i>By Type</button>
-            </li>
-            <li>
-              <button class="nav-link text-start" role="button" onclick="sortItems('2')" title="Sort Items"><i class="bi bi-calendar2 mx-2"></i>By Date</button>
-            </li>
-          </ul>
-        </li>
+            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="bi bi-filter-left mx-2"></i>Sort
+            </a>
+            <ul class="dropdown-menu">
+              <li>
+                <button class="nav-link text-start" role="button" onclick="sortItems()" title="Sort Items"><i class="bi bi-sort-alpha-down mx-2"></i>By Alphabet</button>
+              </li>
+              <li>
+                <button class="nav-link text-start" role="button" onclick="sortItems('1')" title="Sort Items"><i class="bi bi-sort-alpha-down mx-2"></i>By Type</button>
+              </li>
+              <li>
+                <button class="nav-link text-start" role="button" onclick="sortItems('2')" title="Sort Items"><i class="bi bi-calendar2 mx-2"></i>By Date</button>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="bi bi-gear mx-2"></i>Settings
+            </a>
+            <ul class="dropdown-menu">
+              <li>
+                <div class="form-floating">
+                  <select class="form-select" id="currencySymbolSelect" autocomplete="off">
+                    <option selected>$</option>
+                    <option>€</option>
+                    <option>£</option>
+                    <option>¥</option>
+                  </select>
+                  <label for="itemColour">Currency Symbol</label>
+                </div>
+              </li>
+            </ul>
+          </li>
           <li class="nav-item">
             <button class="nav-link text-start" id="themeBtn" role="button" onclick="toggleTheme()" title="Toggle Theme">
               <i class="bi bi-moon-stars-fill mx-2"></i>Dark Mode
@@ -110,11 +128,11 @@
       <form method="post" onsubmit="addOrUpdateItem(event);">
         <input type="hidden" id="itemId">
         <div class="form-floating mb-3">
-          <input class="form-control" id="itemName" name="itemName" autocomplete="off">
+          <input class="form-control" id="itemName" name="itemName" placeholder="Item Name" autocomplete="off">
           <label for="itemName">Item Name</label>
         </div>
         <div class="form-floating mb-3">
-          <input class="form-control" id="itemType" name="itemType" autocomplete="off">
+          <input class="form-control" id="itemType" name="itemType" placeholder="Item Type" autocomplete="off">
           <label for="itemType">Item Type</label>
         </div>
         <div class="form-floating mb-3">
@@ -122,16 +140,19 @@
           <label for="itemColour">Colour</label>
         </div>
         <div class="form-floating mb-3">
-          <input class="form-control" id="itemQuantity" name="itemQuantity" type="number" min="0" autocomplete="off">
+          <input class="form-control" id="itemQuantity" name="itemQuantity" type="number" placeholder="Quantity" min="0" autocomplete="off">
           <label for="itemQuantity">Quantity</label>
         </div>
         <div class="form-floating mb-3">
-          <input class="form-control datepicker" id="itemDate" name="itemDate" autocomplete="off">
+          <input class="form-control datepicker" id="itemDate" name="itemDate" placeholder="Date/Time" autocomplete="off">
           <label for="itemDate">Date/Time (24 hr)</label>
         </div>
-        <div class="form-floating mb-3">
-          <input class="form-control" id="itemPrice" name="itemPrice" type="number" min="0" step="0.01" autocomplete="off">
-          <label for="itemPrice">Price (Optional)</label>
+        <div class="input-group mb-3">
+          <span class="input-group-text currency-symbol">$</span>
+          <div class="form-floating">
+            <input class="form-control" id="itemPrice" name="itemPrice" type="number" min="0" step="0.01" placeholder="Item Price" autocomplete="off">
+            <label for="itemPrice">Price (Optional)</label>
+          </div>
         </div>
         <div class="messageBox mb-3" id="itemFormMessageArea"><br></div>
         <div class="d-flex justify-content-between">
