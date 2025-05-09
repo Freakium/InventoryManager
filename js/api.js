@@ -61,11 +61,12 @@ const api = (function () {
      * @param {*} name Name of the item
      * @param {*} type The type of item
      * @param {*} colour Colour of the item
+     * @param {*} quantity The quantity of the item
      * @param {*} date The item's scheduled date in ISO format
-     * @param {*} quantity The name of the quantity assigned to the item
+     * @param {*} price The optional price of the item
      * @returns operation status
      */
-    addItem: (id, name, type, colour, date, quantity) => {
+    addItem: (id, name, type, colour, quantity, date, price) => {
       const index = inventory.items.findIndex(el => el.id === id);
       if(index !== -1) {
         return false;
@@ -76,8 +77,9 @@ const api = (function () {
         name,
         type,
         colour,
+        quantity,
         date,
-        quantity
+        price
       });
 
       return true;
@@ -89,11 +91,12 @@ const api = (function () {
      * @param {*} name Name of the item
      * @param {*} type The type of item
      * @param {*} colour Colour of the item
+     * @param {*} quantity The quantity of the item
      * @param {*} date The item's scheduled date in ISO format
-     * @param {*} quantity The name of the quantity assigned to the item
+     * @param {*} price The optional price of the item
      * @returns operation status
      */
-    updateItem: (id, name, type, colour, date, quantity) => {
+    updateItem: (id, name, type, colour, quantity, date, price) => {
       const index = inventory.items.findIndex(el => el.id === id);
       if(index === -1) {
         return false;
@@ -104,8 +107,9 @@ const api = (function () {
         name,
         type,
         colour,
+        quantity,
         date,
-        quantity
+        price
       };
 
       return true;
@@ -146,11 +150,29 @@ const api = (function () {
     },
 
     /**
+     * Sort inventory by name followed by type.
+     * @returns The sorted inventory
+     */
+    sortItemsByAlpha: () => {
+      inventory.items.sort((a,b) => a.name.localeCompare(b.name) || a.type.localeCompare(b.type));
+      return [...inventory.items];
+    },
+
+    /**
      * Sort inventory by type followed by name.
      * @returns The sorted inventory
      */
-    sortItems: () => {
+    sortItemsByType: () => {
       inventory.items.sort((a,b) => a.type.localeCompare(b.type) || a.name.localeCompare(b.name));
+      return [...inventory.items];
+    },
+
+    /**
+     * Sort inventory by date first followed by type then by name.
+     * @returns The sorted inventory
+     */
+    sortItemsByDate: () => {
+      inventory.items.sort((a,b) => new Date(a.date) - new Date(b.date) || a.type.localeCompare(b.type) || a.name.localeCompare(b.name));
       return [...inventory.items];
     }
   }

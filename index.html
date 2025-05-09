@@ -28,17 +28,30 @@
       </button>
       <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav ms-auto">
-          <li class="nav-item d-grid">
+          <li class="nav-item">
             <button class="nav-link text-start" role="button" onclick="loadFileListener()" title="Load File"><i class="bi bi-download mx-2"></i>Load File</button>
             <input class="d-none" id="fileInput" type="file" accept=".txt" onchange="loadFile()" autocomplete="off">
           </li>
-          <li class="nav-item d-grid">
+          <li class="nav-item">
             <button class="nav-link text-start" role="button" onclick="saveFile()" title="Save File"><i class="bi bi-floppy-fill mx-2"></i>Save File</button>
           </li>
-          <li class="nav-item d-grid">
-            <button class="nav-link text-start" role="button" onclick="sortItems()" title="Sort Items"><i class="bi bi-sort-alpha-down mx-2"></i>Sort</button>
-          </li>
-          <li class="nav-item d-grid">
+          <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="bi bi-filter-left mx-2"></i>Sort
+          </a>
+          <ul class="dropdown-menu">
+            <li>
+              <button class="nav-link text-start" role="button" onclick="sortItems()" title="Sort Items"><i class="bi bi-sort-alpha-down mx-2"></i>By Alphabet</button>
+            </li>
+            <li>
+              <button class="nav-link text-start" role="button" onclick="sortItems('1')" title="Sort Items"><i class="bi bi-sort-alpha-down mx-2"></i>By Type</button>
+            </li>
+            <li>
+              <button class="nav-link text-start" role="button" onclick="sortItems('2')" title="Sort Items"><i class="bi bi-calendar2 mx-2"></i>By Date</button>
+            </li>
+          </ul>
+        </li>
+          <li class="nav-item">
             <button class="nav-link text-start" id="themeBtn" role="button" onclick="toggleTheme()" title="Toggle Theme">
               <i class="bi bi-moon-stars-fill mx-2"></i>Dark Mode
             </button>
@@ -77,6 +90,13 @@
     <span class="ms-1"><script>document.write(` Freakium ${/\d{4}/.exec(Date())[0]}`)</script></span>
   </footer>
 
+  <!-- TOTAL AREA -->
+  <div class="d-none" id="totalArea">
+    <div role="alert" class="alert alert-secondary shadow py-2 mb-0">
+      <span class="fw-bold mx-auto text-center">Total Price: <span id="totalAmount"></span></span>
+    </div>
+  </div>
+
   <!-- MESSAGE AREA -->
   <div id="messageArea"></div>
 
@@ -108,6 +128,10 @@
         <div class="form-floating mb-3">
           <input class="form-control datepicker" id="itemDate" name="itemDate" autocomplete="off">
           <label for="itemDate">Date/Time (24 hr)</label>
+        </div>
+        <div class="form-floating mb-3">
+          <input class="form-control" id="itemPrice" name="itemPrice" type="number" min="0" step="0.01" autocomplete="off">
+          <label for="itemPrice">Price (Optional)</label>
         </div>
         <div class="messageBox mb-3" id="itemFormMessageArea"><br></div>
         <div class="d-flex justify-content-between">

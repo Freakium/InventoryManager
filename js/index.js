@@ -27,6 +27,7 @@
       toggleTheme();
     }
 
+    // Set up draggable item sorting
     $('#item-list').sortable({
       items: `.col:not('#addItemBtn')`,
       opacity: 0.8,
@@ -77,6 +78,13 @@
     document.getElementById('itemName').focus();
   })
 
+  /**
+   * Listener to keep price input to two decimal places.
+   */
+  document.getElementById('itemPrice').addEventListener('change', e => {
+    e.currentTarget.value = parseFloat(e.currentTarget.value).toFixed(2);
+  })
+
   /*======================= CRUD FUNCTIONS =======================*/
 
   /**
@@ -124,17 +132,19 @@
    * @param {*} itemName Name of the item
    * @param {*} itemType The type of item
    * @param {*} colour The colour of the item (shown on header)
-   * @param {*} itemDate The item's set date in ISO format
    * @param {*} quantity The quantity of the item
+   * @param {*} itemDate The item's set date in ISO format
+   * @param {*} price The optional price of the item
    */
-  function dbAddItem(itemName, itemType, colour, itemDate, quantity) {
+  function dbAddItem(itemName, itemType, colour, quantity, itemDate, price) {
     // create new id
     let id = Date.now();
 
-    if (api.addItem(id, itemName, itemType, colour, itemDate, quantity)) {
+    if (api.addItem(id, itemName, itemType, colour, quantity, itemDate, price)) {
       // Add item to item list
-      createItemCard(id, itemName, itemType, colour, itemDate, quantity);
+      createItemCard(id, itemName, itemType, colour, quantity, itemDate, price);
       appendAddItemButton();
+      calculateTotal();
 
       // UI items
       itemFormCanvas.hide();
@@ -155,12 +165,14 @@
    * @param {*} itemName Name of the item
    * @param {*} itemType The type of item
    * @param {*} colour The colour of the item (shown on header)
-   * @param {*} itemDate The item's set date in ISO format
    * @param {*} quantity The quantity of the item
+   * @param {*} itemDate The item's set date in ISO format
+   * @param {*} price The optional price of the item
    */
-  function dbUpdateItem(id, itemName, itemType, colour, itemDate, quantity) {
-    if (api.updateItem(id, itemName, itemType, colour, itemDate, quantity)) {
-      updateItemCard(id, itemName, itemType, colour, itemDate, quantity);
+  function dbUpdateItem(id, itemName, itemType, colour, quantity, itemDate, price) {
+    if (api.updateItem(id, itemName, itemType, colour, quantity, itemDate, price)) {
+      updateItemCard(id, itemName, itemType, colour, quantity, itemDate, price);
+      calculateTotal();
 
       // UI items
       itemFormCanvas.hide();
@@ -184,6 +196,7 @@
 
     if (api.deleteItem(id)) {
       document.getElementById(`${id}`).remove();
+      calculateTotal();
 
       // hide modal and hide item form
       let modal = bootstrap.Modal.getInstance(document.getElementById('deleteModal'));
@@ -223,16 +236,20 @@
    * @param {*} items Array of items as JSON objects
    */
   function renderItems(items) {
-    // sort by date
-    items.sort((a, b) => {
-      return new Date(b.itemDate) - new Date(a.itemDate);
-    });
+    let total = 0;
 
     items.forEach((item) => {
-      createItemCard(item.id, item.name, item.type, item.colour, item.date, item.quantity);
+      createItemCard(item.id, item.name, item.type, item.colour, item.quantity, item.date, item.price);
+      
+      // add to total
+      let price = parseFloat(item.price);
+      if(!isNaN(price)) {
+        total += price;
+      }
     });
 
     appendAddItemButton();
+    displayTotal(total);
   }
 
   /**
@@ -244,12 +261,13 @@
     // set header
     document.getElementById('itemOperation').innerHTML = isDuplicate ? "Duplicate" : "Update";
 
-    // clear inputs
+    // populate inputs
     document.getElementById('itemId').value = item.id;
     document.getElementById('itemName').value = item.name;
     document.getElementById('itemType').value = item.type;
     document.getElementById('itemColour').value = item.colour;
     document.getElementById('itemQuantity').value = item.quantity;
+    document.getElementById('itemPrice').value = item.price;
 
     // parse date
     let date = new Date(item.date);
@@ -274,10 +292,11 @@
    * @param {*} itemName Name of the item
    * @param {*} itemType The type of item
    * @param {*} colour The colour of the item (shown on header)
-   * @param {*} itemDate The item's set date in ISO format
    * @param {*} quantity The quantity of the item
+   * @param {*} itemDate The item's set date in ISO format
+   * @param {*} price The optional price of the item
    */
-  function createItemCard(id, itemName, itemType, colour, itemDate, quantity) {
+  function createItemCard(id, itemName, itemType, colour, quantity, itemDate, price) {
     let date = new Date(itemDate);
     let dateTime = date.toLocaleString();
 
@@ -292,7 +311,10 @@
             </div>
           </div>
           <div class="card-body bg-secondary-subtle">
-            <span class="badge bg-primary mb-3" id="${id}-itemType" title="Item Type">${itemType}</span>
+            <div class="d-flex justify-content-between">
+              <span class="badge bg-primary mb-3" id="${id}-itemType" title="Item Type">${itemType}</span>
+              <span class="badge bg-success mb-3 badge-price ${price ? '' : 'd-none'}" id="${id}-itemPrice" title="Item Price">${price}</span>
+            </div>
             <div class="form-floating shadow">
               <input class="form-control" id="${id}-quantity" value="${quantity}" title="Quantity" disabled>
               <label for="floatingInput">Quantity</label>
@@ -311,10 +333,11 @@
    * @param {*} itemName Name of the item
    * @param {*} itemType The type of item
    * @param {*} colour The colour of the item (shown on header)
-   * @param {*} itemDate The item's set date in ISO format
    * @param {*} quantity The quantity of the item
+   * @param {*} itemDate The item's set date in ISO format
+   * @param {*} price The optional price of the item
    */
-  function updateItemCard(id, itemName, itemType, colour, itemDate, quantity) {
+  function updateItemCard(id, itemName, itemType, colour, quantity, itemDate, price) {
     let date = new Date(itemDate);
     let dateTime = date.toLocaleString();
 
@@ -322,28 +345,28 @@
     document.getElementById(`${id}-itemType`).innerHTML = itemType;
     document.getElementById(`${id}-quantity`).value = quantity;
     document.getElementById(`${id}-itemDate`).innerHTML = dateTime;
+    
+    // update price and display
+    let priceEl = document.getElementById(`${id}-itemPrice`);
+    priceEl.innerHTML = price;
+    price ? priceEl.classList.remove('d-none') : priceEl.classList.add('d-none');
 
     // set header colour
     document.getElementById(`${id}-header`).style.backgroundColor = colour;
   }
 
   /**
-   * Appends an 'Add Item' button to the end of the item list.
+   * Calculates the total price of all items and shows/hides the total price display.
    */
-  function appendAddItemButton() {
-    let addBtn = document.getElementById('addItemBtn');
-    if (addBtn) {
-      addBtn.remove();
-    }
-
-    document.getElementById('item-list').innerHTML +=
-      `<div class="col" id="addItemBtn">
-        <div class="card shadow h-100">
-          <button class="btn btn-lg bg-body-tertiary text-primary h-100" title="Add Item" onclick="addItemMode();">
-            <i class="bi bi-plus-square"></i>
-          </button>
-        </div>
-      </div>`;
+  function calculateTotal() {
+    let total = 0;
+    document.querySelectorAll('.badge-price').forEach((el) => {
+      let price = parseFloat(el.innerHTML);
+      if(!isNaN(price)) {
+        total += price;
+      }
+    });
+    displayTotal(total);
   }
 
   /*====================== DISPLAY FUNCTIONS =====================*/
@@ -393,6 +416,39 @@
   function formHeaderColour(colour) {
     document.getElementById('itemFormHeader').classList.remove('bg-primary-subtle', 'bg-success-subtle', 'bg-warning-subtle');
     document.getElementById('itemFormHeader').classList.add(`bg-${colour}-subtle`);
+  }
+
+  /**
+   * Appends an 'Add Item' button to the end of the item list.
+   */
+  function appendAddItemButton() {
+    let addBtn = document.getElementById('addItemBtn');
+    if (addBtn) {
+      addBtn.remove();
+    }
+
+    document.getElementById('item-list').innerHTML +=
+      `<div class="col" id="addItemBtn">
+        <div class="card shadow h-100">
+          <button class="btn btn-lg bg-body-tertiary text-primary h-100" title="Add Item" onclick="addItemMode();">
+            <i class="bi bi-plus-square"></i>
+          </button>
+        </div>
+      </div>`;
+  }
+
+  /**
+   * Display total price if applicable. Hides total price if 0.
+   */
+  function displayTotal(total) {
+    if(total) {
+      document.getElementById('totalAmount').innerHTML = total.toFixed(2);
+      document.getElementById('totalArea').classList.remove('d-none');
+    }
+    else {
+      document.getElementById('totalAmount').innerHTML = '';
+      document.getElementById('totalArea').classList.add('d-none');
+    }
   }
 
   /*====================== LISTENER FUNCTIONS ====================*/
@@ -466,10 +522,23 @@
     window.onbeforeunload = null;
   }
 
-  window.sortItems = () => {
-    if (!api.fetchItems().length) return;
+  window.sortItems = (mode) => {
+    if (!api.fetchItems().length) {
+      alertMessage('messageArea', 'There are no items to sort.', 'danger', 3);
+      return;
+    }
 
-    let sortedItems = api.sortItems();
+    let sortedItems;
+    switch(mode) {
+      case '1':
+        sortedItems = api.sortItemsByType();
+        break;
+      case '2':
+        sortedItems = api.sortItemsByDate();
+        break;
+      default:
+        sortedItems = api.sortItemsByAlpha();
+    }
 
     document.getElementById('item-list').innerHTML = '';
     renderItems(sortedItems);
@@ -518,6 +587,7 @@
     document.getElementById('itemType').value = "";
     document.getElementById('itemColour').value = "";
     document.getElementById('itemQuantity').value = "";
+    document.getElementById('itemPrice').value = "";
 
     // clear datepicker
     dtp.clear();
@@ -559,6 +629,8 @@
     let itemColour = event.target.itemColour.value;
     let itemDate = event.target.itemDate.value;
     let itemQuantity = parseInt(event.target.itemQuantity.value);
+    let itemPrice = event.target.itemPrice.value;
+    let priceCheck = parseFloat(itemPrice);
 
     // Validations
     if (!itemName) {
@@ -581,6 +653,10 @@
       alertMessage('itemFormMessageArea', 'Please select a date.', 'danger');
       return;
     }
+    else if (itemPrice && (isNaN(priceCheck) || priceCheck < 0)) {
+      alertMessage('itemFormMessageArea', 'Please enter a valid price.', 'danger');
+      return;
+    }
 
     // make sure item name is unique
     let nameCheck = api.searchItems(itemName);
@@ -596,9 +672,12 @@
     let dateSplit = date.toISOString().split('.');
     let dateTime = dateSplit[0] + 'Z';
 
+    // remove price if value is 0
+    itemPrice = priceCheck === 0 ? '' : itemPrice;
+
     id > 0
-      ? dbUpdateItem(id, itemName, itemType, itemColour, dateTime, itemQuantity)
-      : dbAddItem(itemName, itemType, itemColour, dateTime, itemQuantity);
+      ? dbUpdateItem(id, itemName, itemType, itemColour, itemQuantity, dateTime, itemPrice)
+      : dbAddItem(itemName, itemType, itemColour, itemQuantity, dateTime, itemPrice);
   }
 
   /**
