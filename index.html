@@ -41,13 +41,22 @@
             </a>
             <ul class="dropdown-menu">
               <li>
-                <button class="nav-link text-start" role="button" onclick="sortItems()" title="Sort Items"><i class="bi bi-sort-alpha-down mx-2"></i>By Alphabet</button>
+                <button class="nav-link text-start" role="button" onclick="sortItems()" title="Sort Items"><i class="bi bi-sort-alpha-down mx-2"></i>Name (ASC)</button>
               </li>
               <li>
-                <button class="nav-link text-start" role="button" onclick="sortItems('1')" title="Sort Items"><i class="bi bi-sort-alpha-down mx-2"></i>By Type</button>
+                <button class="nav-link text-start" role="button" onclick="sortItems('1')" title="Sort Items"><i class="bi bi-sort-alpha-down-alt mx-2"></i>Name (DSC)</button>
               </li>
               <li>
-                <button class="nav-link text-start" role="button" onclick="sortItems('2')" title="Sort Items"><i class="bi bi-calendar2 mx-2"></i>By Date</button>
+                <button class="nav-link text-start" role="button" onclick="sortItems('2')" title="Sort Items"><i class="bi bi-sort-alpha-down mx-2"></i>Type (ASC)</button>
+              </li>
+              <li>
+                <button class="nav-link text-start" role="button" onclick="sortItems('3')" title="Sort Items"><i class="bi bi-sort-alpha-down-alt mx-2"></i>Type (DSC)</button>
+              </li>
+              <li>
+                <button class="nav-link text-start" role="button" onclick="sortItems('4')" title="Sort Items"><i class="bi bi-calendar2-plus mx-2"></i>Date (ASC)</button>
+              </li>
+              <li>
+                <button class="nav-link text-start" role="button" onclick="sortItems('5')" title="Sort Items"><i class="bi bi-calendar2-minus mx-2"></i>Date (DSC)</button>
               </li>
             </ul>
           </li>
@@ -63,6 +72,7 @@
                     <option>€</option>
                     <option>£</option>
                     <option>¥</option>
+                    <option>₩</option>
                   </select>
                   <label for="itemColour">Currency Symbol</label>
                 </div>

@@ -569,14 +569,29 @@
 
     let sortedItems;
     switch(mode) {
+      // alphabet (dsc)
       case '1':
+        sortedItems = api.sortItemsByName(true);
+        break;
+      // type (asc)
+      case '2':
         sortedItems = api.sortItemsByType();
         break;
-      case '2':
+      // type (dsc)
+      case '3':
+        sortedItems = api.sortItemsByType(true);
+        break;
+      // date (asc)
+      case '4':
         sortedItems = api.sortItemsByDate();
         break;
+      // date (dsc)
+      case '5':
+        sortedItems = api.sortItemsByDate(true);
+        break;
+      // alphabet (asc)
       default:
-        sortedItems = api.sortItemsByAlpha();
+        sortedItems = api.sortItemsByName();
     }
 
     document.getElementById('item-list').innerHTML = '';

@@ -151,28 +151,32 @@ const api = (function () {
 
     /**
      * Sort inventory by name followed by type.
+     * @param {*} isDescending Whether or not to sort descending
      * @returns The sorted inventory
      */
-    sortItemsByAlpha: () => {
-      inventory.items.sort((a,b) => a.name.localeCompare(b.name) || a.type.localeCompare(b.type));
+    sortItemsByName: (isDescending = false) => {
+      inventory.items.sort((a,b) => isDescending ? b.name.localeCompare(a.name) : a.name.localeCompare(b.name) || a.type.localeCompare(b.type));
       return [...inventory.items];
     },
 
     /**
      * Sort inventory by type followed by name.
+     * @param {*} isDescending Whether or not to sort descending
      * @returns The sorted inventory
      */
-    sortItemsByType: () => {
-      inventory.items.sort((a,b) => a.type.localeCompare(b.type) || a.name.localeCompare(b.name));
+    sortItemsByType: (isDescending = false) => {
+      inventory.items.sort((a,b) => isDescending ? b.type.localeCompare(a.type) : a.type.localeCompare(b.type) || a.name.localeCompare(b.name));
       return [...inventory.items];
     },
 
     /**
      * Sort inventory by date first followed by type then by name.
+     * @param {*} isDescending Whether or not to sort descending
      * @returns The sorted inventory
      */
-    sortItemsByDate: () => {
-      inventory.items.sort((a,b) => new Date(a.date) - new Date(b.date) || a.type.localeCompare(b.type) || a.name.localeCompare(b.name));
+    sortItemsByDate: (isDescending = false) => {
+      inventory.items.sort((a,b) => isDescending ? new Date(b.date) - new Date(a.date) : new Date(a.date) - new Date(b.date) ||
+        a.type.localeCompare(b.type) || a.name.localeCompare(b.name));
       return [...inventory.items];
     }
   }
