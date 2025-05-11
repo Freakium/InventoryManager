@@ -261,8 +261,9 @@
       
       // add to total
       let price = parseFloat(item.price);
+      let quantity = parseInt(item.quantity);
       if(!isNaN(price)) {
-        total += price;
+        total += price * quantity;
       }
     });
 
@@ -331,7 +332,7 @@
           <div class="card-body bg-secondary-subtle">
             <div class="d-flex justify-content-between mb-3">
               <span class="badge bg-primary" id="${id}-itemType" title="Item Type">${itemType}</span>
-              <span class="badge bg-success badge-price${price ? '' : ' d-none'}" id="${id}-itemPrice" data-price="${price ?? 0}" title="Item Price">
+              <span class="badge bg-success badge-price${price ? '' : ' d-none'}" id="${id}-itemPrice" data-price="${price ?? 0}" data-quantity="${quantity}" title="Item Price">
                 <span class="currency-symbol">${currencySymbol}</span>${currencyFormat(price ?? 0)}
               </span>
             </div>
@@ -369,6 +370,7 @@
     // update price and display
     let priceEl = document.getElementById(`${id}-itemPrice`);
     priceEl.setAttribute('data-price', price);
+    priceEl.setAttribute('data-quantity', quantity);
     priceEl.innerHTML = `<span class="currency-symbol">${currencySymbol}</span>${currencyFormat(price)}`;
     price ? priceEl.classList.remove('d-none') : priceEl.classList.add('d-none');
 
@@ -386,8 +388,9 @@
     // fetch all prices from badge prices in DOM
     document.querySelectorAll('.badge-price').forEach((el) => {
       let price = parseFloat(el.getAttribute('data-price'));
+      let quantity = parseInt(el.getAttribute('data-quantity'));
       if(!isNaN(price)) {
-        total += price;
+        total += price * quantity;
       }
     });
 
