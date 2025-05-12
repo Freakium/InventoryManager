@@ -29,11 +29,11 @@
       <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav ms-auto">
           <li class="nav-item">
-            <button class="nav-link text-start" role="button" onclick="loadFileListener()" title="Load File"><i class="bi bi-download mx-2"></i>Load File</button>
+            <button class="nav-link" role="button" onclick="loadFileListener()" title="Load File"><i class="bi bi-download mx-2"></i>Load File</button>
             <input class="d-none" id="fileInput" type="file" accept=".txt" onchange="loadFile()" autocomplete="off">
           </li>
           <li class="nav-item">
-            <button class="nav-link text-start" role="button" onclick="saveFile()" title="Save File"><i class="bi bi-floppy-fill mx-2"></i>Save File</button>
+            <button class="nav-link" role="button" onclick="saveFile()" title="Save File"><i class="bi bi-floppy-fill mx-2"></i>Save File</button>
           </li>
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -41,22 +41,22 @@
             </a>
             <ul class="dropdown-menu">
               <li>
-                <button class="nav-link text-start" role="button" onclick="sortItems()" title="Sort Items"><i class="bi bi-sort-alpha-down mx-2"></i>Name (ASC)</button>
+                <button class="nav-link" role="button" onclick="sortItems()" title="Sort Items"><i class="bi bi-sort-alpha-down mx-2"></i>Name (ASC)</button>
               </li>
               <li>
-                <button class="nav-link text-start" role="button" onclick="sortItems('1')" title="Sort Items"><i class="bi bi-sort-alpha-down-alt mx-2"></i>Name (DSC)</button>
+                <button class="nav-link" role="button" onclick="sortItems('1')" title="Sort Items"><i class="bi bi-sort-alpha-down-alt mx-2"></i>Name (DSC)</button>
               </li>
               <li>
-                <button class="nav-link text-start" role="button" onclick="sortItems('2')" title="Sort Items"><i class="bi bi-sort-alpha-down mx-2"></i>Type (ASC)</button>
+                <button class="nav-link" role="button" onclick="sortItems('2')" title="Sort Items"><i class="bi bi-sort-alpha-down mx-2"></i>Type (ASC)</button>
               </li>
               <li>
-                <button class="nav-link text-start" role="button" onclick="sortItems('3')" title="Sort Items"><i class="bi bi-sort-alpha-down-alt mx-2"></i>Type (DSC)</button>
+                <button class="nav-link" role="button" onclick="sortItems('3')" title="Sort Items"><i class="bi bi-sort-alpha-down-alt mx-2"></i>Type (DSC)</button>
               </li>
               <li>
-                <button class="nav-link text-start" role="button" onclick="sortItems('4')" title="Sort Items"><i class="bi bi-calendar2-plus mx-2"></i>Date (ASC)</button>
+                <button class="nav-link" role="button" onclick="sortItems('4')" title="Sort Items"><i class="bi bi-calendar2-plus mx-2"></i>Date (ASC)</button>
               </li>
               <li>
-                <button class="nav-link text-start" role="button" onclick="sortItems('5')" title="Sort Items"><i class="bi bi-calendar2-minus mx-2"></i>Date (DSC)</button>
+                <button class="nav-link" role="button" onclick="sortItems('5')" title="Sort Items"><i class="bi bi-calendar2-minus mx-2"></i>Date (DSC)</button>
               </li>
             </ul>
           </li>
@@ -77,10 +77,15 @@
                   <label for="itemColour">Currency Symbol</label>
                 </div>
               </li>
+              <li>
+                <button class="nav-link" role="button" title="Clear Data" data-bs-toggle="modal" data-bs-target="#clearModal">
+                  <i class="bi bi-eraser-fill mx-2"></i>Clear Data
+                </button>
+              </li>
             </ul>
           </li>
           <li class="nav-item">
-            <button class="nav-link text-start" id="themeBtn" role="button" onclick="toggleTheme()" title="Toggle Theme">
+            <button class="nav-link" id="themeBtn" role="button" onclick="toggleTheme()" title="Toggle Theme">
               <i class="bi bi-moon-stars-fill mx-2"></i>Dark Mode
             </button>
           </li>
@@ -187,6 +192,25 @@
         </div>
         <div class="modal-footer d-flex justify-content-between py-1">
           <button type="button" class="btn btn-danger ms-auto" onclick="deleteItem();"><i class="bi bi-trash3 me-1"></i>Delete</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CLEAR MODAL -->
+  <div class="modal" tabindex="-1" id="clearModal" aria-modal="true" role="dialog">
+    <div class="modal-dialog ">
+      <div class="modal-content">
+        <div class="modal-header text-white bg-danger">
+          <h1 class="modal-title fs-5"><i class="bi bi-eraser-fill mx-2"></i>Clear Data</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p>This will clear all inventory data. Do you want to continue?</p>
+          <div class="messageBox" id="clearModalMessageArea"></div>
+        </div>
+        <div class="modal-footer d-flex justify-content-between py-1">
+          <button type="button" class="btn btn-danger ms-auto" onclick="clearData();"><i class="bi bi-eraser-fill me-1"></i>Clear</button>
         </div>
       </div>
     </div>

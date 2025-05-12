@@ -1,25 +1,46 @@
 const api = (function () {
 
-  // initiate inventory
-  let inventory = {
-    title: 'Inventory',
-    items: []
-  };
+  /**
+   * Get inventory items from localStorage and parse it into JSON.
+   */
+  function getItemsFromLocalStorage() {
+    const items = localStorage.getItem('items');
+    const parseItems = JSON.parse(items);
+    return parseItems ?? [];
+  }
+
+  /**
+   * Stringify JSON items and save to localStorage.
+   * @param {*} items List of inventory items
+   */
+  function saveItemsToLocalStorage(items) {
+    const stringItems = JSON.stringify(items);
+    localStorage.setItem('items', stringItems);
+  }
 
   return {
 
     /**
-     * Loads existing inventory
+     * Loads existing inventory.
      */
     loadInventory(inv) {
-      inventory = inv;
+      localStorage.setItem('title', inv.title);
+      saveItemsToLocalStorage(inv.items);
     },
 
     /**
-     * Get entire contents of inventory (title, items)
+     * Get entire contents of inventory (title, items).
      * @returns Entire contents of inventory
      */
     fetchInventory() {
+      const title = localStorage.getItem('title');
+      const items = getItemsFromLocalStorage();
+
+      const inventory = {
+        title,
+        items
+      };
+
       return inventory;
     },
     
@@ -28,7 +49,7 @@ const api = (function () {
      * @returns array of items as JSON objects
      */
     fetchItems: () => {
-      return [...inventory.items];
+      return getItemsFromLocalStorage();
     },
 
     /**
@@ -37,14 +58,15 @@ const api = (function () {
      * @returns item
      */
     fetchItem: (id) => {
-      return {...inventory.items.find(el => el.id == id)};
+      const items = getItemsFromLocalStorage();
+      return items.find(el => el.id == id);
     },
 
     /**
      * Fetches the title of the inventory list.
      */
     fetchTitle: () => {
-      return inventory.title;
+      return localStorage.getItem('title');
     },
     
     /**
@@ -52,7 +74,7 @@ const api = (function () {
      * @param {*} name The new title name
      */
     editTitle: (name) => {
-      inventory.title = name;
+      localStorage.setItem('title', name);
     },
 
     /**
@@ -67,12 +89,14 @@ const api = (function () {
      * @returns operation status
      */
     addItem: (id, name, type, colour, quantity, date, price) => {
-      const index = inventory.items.findIndex(el => el.id === id);
+      let items = getItemsFromLocalStorage();
+      const index = items.findIndex(el => el.id === id);
       if(index !== -1) {
         return false;
       }
 
-      inventory.items.push({
+      // add new item to array
+      items.push({
         id,
         name,
         type,
@@ -81,6 +105,9 @@ const api = (function () {
         date,
         price
       });
+
+      // update localStorage
+      saveItemsToLocalStorage(items);
 
       return true;
     },
@@ -97,12 +124,14 @@ const api = (function () {
      * @returns operation status
      */
     updateItem: (id, name, type, colour, quantity, date, price) => {
-      const index = inventory.items.findIndex(el => el.id === id);
+      let items = getItemsFromLocalStorage();
+      const index = items.findIndex(el => el.id === id);
       if(index === -1) {
         return false;
       }
 
-      inventory.items[index] = {
+      // update item in array
+      items[index] = {
         id,
         name,
         type,
@@ -111,6 +140,9 @@ const api = (function () {
         date,
         price
       };
+      
+      // update localStorage
+      saveItemsToLocalStorage(items);
 
       return true;
     },
@@ -120,7 +152,7 @@ const api = (function () {
      * @param {*} items The item list
      */
     updateItems: (items) => {
-      inventory.items = items;
+      saveItemsToLocalStorage(items);
     },
 
     /**
@@ -129,13 +161,18 @@ const api = (function () {
      * @returns boolean response
      */
     deleteItem: (id) => {
-      const index = inventory.items.findIndex(el => el.id == id);
-      if (index !== -1) {
-        inventory.items.splice(index, 1);
-        return true;
+      let items = getItemsFromLocalStorage();
+      const index = items.findIndex(el => el.id == id);
+      if (index === -1) {
+        return false;
       }
       else {
-        return false;
+        items.splice(index, 1);
+      
+        // update localStorage
+        saveItemsToLocalStorage(items);
+
+        return true;
       }
     },
 
@@ -145,7 +182,8 @@ const api = (function () {
      * @returns The first match if found
      */
     searchItems: (searchTerm) => {
-      let result = inventory.items.find(item => item.name.toLowerCase() === searchTerm.toLowerCase());
+      let items = getItemsFromLocalStorage();
+      let result = items.find(item => item.name.toLowerCase() === searchTerm.toLowerCase());
       return result;
     },
 
@@ -155,8 +193,9 @@ const api = (function () {
      * @returns The sorted inventory
      */
     sortItemsByName: (isDescending = false) => {
-      inventory.items.sort((a,b) => isDescending ? b.name.localeCompare(a.name) : a.name.localeCompare(b.name) || a.type.localeCompare(b.type));
-      return [...inventory.items];
+      let items = getItemsFromLocalStorage();
+      items.sort((a,b) => isDescending ? b.name.localeCompare(a.name) : a.name.localeCompare(b.name) || a.type.localeCompare(b.type));
+      return items;
     },
 
     /**
@@ -165,8 +204,9 @@ const api = (function () {
      * @returns The sorted inventory
      */
     sortItemsByType: (isDescending = false) => {
-      inventory.items.sort((a,b) => isDescending ? b.type.localeCompare(a.type) : a.type.localeCompare(b.type) || a.name.localeCompare(b.name));
-      return [...inventory.items];
+      let items = getItemsFromLocalStorage();
+      items.sort((a,b) => isDescending ? b.type.localeCompare(a.type) : a.type.localeCompare(b.type) || a.name.localeCompare(b.name));
+      return items;
     },
 
     /**
@@ -175,9 +215,10 @@ const api = (function () {
      * @returns The sorted inventory
      */
     sortItemsByDate: (isDescending = false) => {
-      inventory.items.sort((a,b) => isDescending ? new Date(b.date) - new Date(a.date) : new Date(a.date) - new Date(b.date) ||
+      let items = getItemsFromLocalStorage();
+      items.sort((a,b) => isDescending ? new Date(b.date) - new Date(a.date) : new Date(a.date) - new Date(b.date) ||
         a.type.localeCompare(b.type) || a.name.localeCompare(b.name));
-      return [...inventory.items];
+      return items;
     }
   }
 })();

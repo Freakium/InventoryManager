@@ -22,8 +22,8 @@
    * Run on load.
    */
   addEventListener("load", (e) => {
-    // Initial "Add Item" button in item list
-    appendAddItemButton();
+    // get data from localStorage
+    loadFromStorage();
 
     // set to dark mode if system theme is dark
     if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
@@ -108,11 +108,11 @@
   /**
    * Call api to fetch list of items.
    */
-  function dbFetchItems() {
+  function dbFetchItems(isFile = false) {
     let items = api.fetchItems();
 
     // check if file has correct contents
-    if (!items) {
+    if (!items && isFile) {
       alertMessage('messageArea', 'A problem occurred while loading file. Please make sure you are loading the correct inventory file.', 'danger', 3);
       return;
     }
@@ -168,9 +168,6 @@
       itemFormCanvas.hide();
       alertMessage('messageArea', 'Item successfully added!', 'success', 3);
       document.getElementById('saveFileBtn').classList.remove('d-none');
-      window.onbeforeunload = (event) => {
-        return event;
-      };
     }
     else {
       alertMessage('itemFormMessageArea', 'A problem occurred while adding item. Please try again later.', 'danger');
@@ -196,9 +193,6 @@
       itemFormCanvas.hide();
       alertMessage('messageArea', 'Item successfully updated!', 'success', 3);
       document.getElementById('saveFileBtn').classList.remove('d-none');
-      window.onbeforeunload = (event) => {
-        return event;
-      };
     }
     else {
       alertMessage('itemFormMessageArea', 'A problem occurred while updating item. Please try again later.', 'danger');
@@ -223,9 +217,6 @@
 
       alertMessage('messageArea', 'Item successfully deleted!', 'success', 3);
       document.getElementById('saveFileBtn').classList.remove('d-none');
-      window.onbeforeunload = (event) => {
-        return event;
-      };
     }
     else {
       alertMessage('deleteModalMessageArea', errorMsg, 'danger');
@@ -236,14 +227,7 @@
    * Call api to fetch title of inventory list.
    */
   function dbFetchTitle() {
-    let title = api.fetchTitle();
-
-    // check if file has correct contents
-    if (!title) {
-      alertMessage('messageArea', 'A problem occurred while loading file. Please make sure you are loading the correct inventory file.', 'danger', 3);
-      return;
-    }
-
+    let title = api.fetchTitle() ?? 'Inventory';
     document.getElementById('inventoryTitle').value = title;
   }
 
@@ -402,6 +386,15 @@
     displayTotal(total);
   }
 
+  /**
+   * Gets title and items from localStorage and renders items on screen.
+   * @param {*} isFile Whether or not we are loading from an uploaded file
+   */
+  function loadFromStorage(isFile = false) {
+    dbFetchTitle();
+    dbFetchItems(isFile);
+  }
+
   /*====================== DISPLAY FUNCTIONS =====================*/
 
   /**
@@ -496,6 +489,22 @@
   /*====================== LISTENER FUNCTIONS ====================*/
 
   /**
+   * Resets all data by clearing title and items.
+   */
+  window.clearData = () => {
+    document.getElementById('item-list').innerHTML = '';
+    localStorage.clear();
+    loadFromStorage();
+
+    // hide modal
+    let modal = bootstrap.Modal.getInstance(document.getElementById('clearModal'));
+    modal.hide();
+
+    alertMessage('messageArea', 'Data cleared!', 'success', 3);
+    document.getElementById('saveFileBtn').classList.add('d-none');
+  }
+
+  /**
    * Clicks the hidden file input to upload existing inventory list.
    */
   window.loadFileListener = () => {
@@ -523,12 +532,10 @@
             itemFormCanvas.hide();
             document.getElementById('item-list').innerHTML = '';
             document.getElementById('saveFileBtn').classList.add('d-none');
-            window.onbeforeunload = null;
 
             // load file content
             api.loadInventory(parseInput);
-            dbFetchTitle();
-            dbFetchItems();
+            loadFromStorage(true);
           }
           else {
             alertMessage('messageArea', 'Error loading file. Inventory data not found.', 'danger', 3);
@@ -561,7 +568,6 @@
     link.click();
 
     document.getElementById('saveFileBtn').classList.add('d-none');
-    window.onbeforeunload = null;
   }
 
   window.sortItems = (mode) => {
