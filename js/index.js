@@ -597,6 +597,13 @@
       // date (dsc)
       case '5':
         sortedItems = api.sortItemsByDate(true);
+      // quantity (asc)
+      case '6':
+        sortedItems = api.sortItemsByQuantity();
+        break;
+      // quantity (dsc)
+      case '7':
+        sortedItems = api.sortItemsByQuantity(true);
         break;
       // alphabet (asc)
       default:

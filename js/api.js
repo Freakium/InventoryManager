@@ -219,6 +219,17 @@ const api = (function () {
       items.sort((a,b) => isDescending ? new Date(b.date) - new Date(a.date) : new Date(a.date) - new Date(b.date) ||
         a.type.localeCompare(b.type) || a.name.localeCompare(b.name));
       return items;
+    },
+
+    /**
+     * Sort inventory by quantity first followed by type then by name.
+     * @param {*} isDescending Whether or not to sort descending
+     * @returns The sorted inventory
+     */
+    sortItemsByQuantity: (isDescending = false) => {
+      let items = getItemsFromLocalStorage();
+      items.sort((a,b) => isDescending ? b.quantity - a.quantity : a.quantity - b.quantity || a.type.localeCompare(b.type) || a.name.localeCompare(b.name));
+      return items;
     }
   }
 })();
