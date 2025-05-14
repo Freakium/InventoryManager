@@ -120,14 +120,19 @@
   </footer>
 
   <!-- TOTAL AREA -->
-  <div class="d-none" id="totalArea">
+  <div class="bottom-interaction d-none" id="totalArea">
     <div role="alert" class="alert alert-secondary shadow py-2 mb-0">
       <span class="fw-bold mx-auto text-center">Total Price: <span id="totalAmount"></span></span>
     </div>
   </div>
 
+  <!-- ADD BUTTON -->
+  <div class="bottom-interaction" id="addButtonArea">
+    <button class="btn btn-primary rounded-circle" onclick="addItemMode()"><i class="bi bi-plus-lg fs-4"></i></button>
+  </div>
+
   <!-- MESSAGE AREA -->
-  <div id="messageArea"></div>
+  <div class="bottom-interaction mb-5" id="messageArea"></div>
 
   <!-- ADD/UPDATE PANEL -->
   <div class="offcanvas offcanvas-end" tabindex="-1" id="itemForm" aria-labelledby="itemFormLabel">
@@ -187,7 +192,7 @@
           <div class="messageBox" id="deleteModalMessageArea"></div>
         </div>
         <div class="modal-footer d-flex justify-content-between py-1">
-          <button type="button" class="btn btn-danger ms-auto" onclick="deleteItem();"><i class="bi bi-trash3 me-1"></i>Delete</button>
+          <button type="button" class="btn btn-danger ms-auto" onclick="deleteItem()"><i class="bi bi-trash3 me-1"></i>Delete</button>
         </div>
       </div>
     </div>
@@ -206,7 +211,7 @@
           <div class="messageBox" id="clearModalMessageArea"></div>
         </div>
         <div class="modal-footer d-flex justify-content-between py-1">
-          <button type="button" class="btn btn-danger ms-auto" onclick="clearData();"><i class="bi bi-eraser-fill me-1"></i>Clear</button>
+          <button type="button" class="btn btn-danger ms-auto" onclick="clearData()"><i class="bi bi-eraser-fill me-1"></i>Clear</button>
         </div>
       </div>
     </div>

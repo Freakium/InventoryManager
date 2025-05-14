@@ -50,7 +50,7 @@
           // item position unchanged
           if (sortIndex === curIndex) {
             if (!sortHelpCounter) {
-              alertMessage('messageArea', "If you are having issues scrolling on mobile, place your finger on an item's quantity box to scroll the page.", 'warning', 10);
+              alertMessage('messageArea', "If you are having issues scrolling on mobile, place your finger on an item's quantity box to scroll the page.", 'warning', 8);
               sortHelpCounter = 4;
             }
             else {
@@ -425,7 +425,7 @@
     let content =
       `<div class="alert alert-${colour} alert-dismissible fade show d-flex mx-auto shadow py-2" role="alert">
         <i class="${icon} me-2"></i><span class="fw-bold mx-auto text-center">${message}</span>
-        ${timer ? "" : `<button type="button" class="btn-close pt-1" data-bs-dismiss="alert" aria-label="Close"></button>`}
+        <button type="button" class="btn-close pt-1" data-bs-dismiss="alert" aria-label="Close"></button>
       </div>`;
 
     // display alert

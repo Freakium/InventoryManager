@@ -27,10 +27,15 @@
   cursor: move;
 }
 
-#messageArea, #totalArea {
+.bottom-interaction {
   position: fixed;
   bottom: 0;
   z-index: 2;
+}
+
+#addButtonArea {
+  right: 5px;
+  bottom: 5px;
 }
 
 #messageArea {
