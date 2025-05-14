@@ -10,7 +10,7 @@
   <link rel="stylesheet" href="src/bootstrap/css/bootstrap.min.css">
   <link rel="stylesheet" href="src/jquery/jquery-ui.min.css">
   <link rel="stylesheet" href="src/flatpickr/css/flatpickr.min.css">
-  <link rel="stylesheet" href="css/index.css">
+  <link rel="stylesheet" href="index.css">
   <link rel="icon" type="image/x-icon" href="img/favicon.ico">
 </head>
 
@@ -106,16 +106,6 @@
     <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4 mb-5" id="item-list"></div>
   </div>
 
-  <!-- SAVE LIST BUTTON -->
-  <div class="container d-grid mb-3 d-none" id="saveFileBtn">
-    <button class="btn btn-lg btn-success d-flex justify-content-between align-items-center" onclick="saveFile()">
-      <span class="spinner-grow spinner-grow-sm"></span>
-      <span class="fw-bold"><i class="bi bi-floppy-fill mx-2"></i>Save File</span>
-      <span class="spinner-grow spinner-grow-sm"></span>
-    </button>
-    <a class="d-none" id="downloadLink"></a>
-  </div>
-
   <!-- FOOTER -->
   <footer class="d-flex align-items-center justify-content-center mt-auto pb-2">
     <a aria-label="Check My GitHub" target="_blank" rel="noopener" href="https://github.com/Freakium/"
@@ -166,7 +156,7 @@
         </div>
         <div class="form-floating mb-3">
           <input class="form-control datepicker" id="itemDate" name="itemDate" placeholder="Date/Time" autocomplete="off">
-          <label for="itemDate">Date/Time (24 hr)</label>
+          <label for="itemDate">Date/Time</label>
         </div>
         <div class="input-group mb-3">
           <span class="input-group-text currency-symbol">$</span>
@@ -228,8 +218,8 @@
   <script src="src/jquery/jquery-ui.min.js"></script>
   <script src="src/jquery/jquery.ui.touch-punch.min.js"></script>
   <script src="src/flatpickr/js/flatpickr.min.js"></script>
-  <script type="text/javascript" src="js/api.js"></script>
-  <script type="text/javascript" src="js/index.js"></script>
+  <script type="text/javascript" src="api.js"></script>
+  <script type="text/javascript" src="index.js"></script>
 </body>
 
 </html>

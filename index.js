@@ -15,7 +15,8 @@
    * Initialize date/time picker input
    */
   const dtp = flatpickr('.datepicker', {
-    enableTime: true
+    enableTime: true,
+    dateFormat: "Y-m-d H:i"
   });
 
   /**
@@ -63,8 +64,8 @@
             itemList.splice(sortIndex, 0, item);
             api.updateItems(itemList);
 
-            // show save button
-            document.getElementById('saveFileBtn').classList.remove('d-none');
+            // reset sortHelpCounter
+            sortHelpCounter = 4;
           }
         }
         else {
@@ -87,13 +88,9 @@
   document.getElementById('currencySymbolSelect').addEventListener('change', e => {
     const selected = e.target.value;
 
-    // change all instances of currency symbol
-    document.querySelectorAll('.currency-symbol').forEach((el) => {
-      el.innerHTML = selected;
-    });
-
     // update currency symbol
-    currencySymbol = selected;
+    updateCurrencySymbol(selected);
+    api.editCurrency(selected);
   })
 
   /**
@@ -167,7 +164,6 @@
       // UI items
       itemFormCanvas.hide();
       alertMessage('messageArea', 'Item successfully added!', 'success', 3);
-      document.getElementById('saveFileBtn').classList.remove('d-none');
     }
     else {
       alertMessage('itemFormMessageArea', 'A problem occurred while adding item. Please try again later.', 'danger');
@@ -192,7 +188,6 @@
       // UI items
       itemFormCanvas.hide();
       alertMessage('messageArea', 'Item successfully updated!', 'success', 3);
-      document.getElementById('saveFileBtn').classList.remove('d-none');
     }
     else {
       alertMessage('itemFormMessageArea', 'A problem occurred while updating item. Please try again later.', 'danger');
@@ -216,7 +211,6 @@
       itemFormCanvas.hide();
 
       alertMessage('messageArea', 'Item successfully deleted!', 'success', 3);
-      document.getElementById('saveFileBtn').classList.remove('d-none');
     }
     else {
       alertMessage('deleteModalMessageArea', errorMsg, 'danger');
@@ -229,6 +223,15 @@
   function dbFetchTitle() {
     let title = api.fetchTitle() ?? 'Inventory';
     document.getElementById('inventoryTitle').value = title;
+  }
+
+  /**
+   * Call api to fetch currency symbol.
+   */
+  function dbFetchCurrency() {
+    let symbol = api.fetchCurrency() ?? '$';
+    document.getElementById('currencySymbolSelect').value = symbol;
+    updateCurrencySymbol(symbol);
   }
 
   /*====================== HELPER FUNCTIONS ======================*/
@@ -270,7 +273,7 @@
     document.getElementById('itemType').value = item.type;
     document.getElementById('itemColour').value = item.colour;
     document.getElementById('itemQuantity').value = item.quantity;
-    document.getElementById('itemPrice').value = item.price === 0 ? '' : item.price;
+    document.getElementById('itemPrice').value = item.price === 0 ? '' : parseFloat(item.price).toFixed(2);
 
     // parse date
     let date = new Date(item.date);
@@ -391,8 +394,9 @@
    * @param {*} isFile Whether or not we are loading from an uploaded file
    */
   function loadFromStorage(isFile = false) {
-    dbFetchTitle();
     dbFetchItems(isFile);
+    dbFetchTitle();
+    dbFetchCurrency();
   }
 
   /*====================== DISPLAY FUNCTIONS =====================*/
@@ -486,6 +490,17 @@
     return price.toLocaleString('en-US', {minimumFractionDigits: 2});
   }
 
+  /**
+   * Updates all UI currency symbols.
+   * @param {*} symbol The new currency symbol
+   */
+  function updateCurrencySymbol(symbol) {
+    // change all instances of currency symbol
+    document.querySelectorAll('.currency-symbol').forEach((el) => {
+      el.innerHTML = symbol;
+    });
+  }
+
   /*====================== LISTENER FUNCTIONS ====================*/
 
   /**
@@ -501,7 +516,6 @@
     modal.hide();
 
     alertMessage('messageArea', 'Data cleared!', 'success', 3);
-    document.getElementById('saveFileBtn').classList.add('d-none');
   }
 
   /**
@@ -531,7 +545,6 @@
             alertMessage('messageArea', '');
             itemFormCanvas.hide();
             document.getElementById('item-list').innerHTML = '';
-            document.getElementById('saveFileBtn').classList.add('d-none');
 
             // load file content
             api.loadInventory(parseInput);
@@ -560,14 +573,26 @@
   window.saveFile = () => {
     let inventory = api.fetchInventory();
 
+    // Validations
+    if(!inventory.items.length) {
+      alertMessage('messageArea', 'Save canceled. There are no items in the list.', 'danger', 3);
+      return;
+    }
+
+    // fill null values
+    if(!inventory.title) {
+      inventory.title = document.getElementById('inventoryTitle').value;
+    }
+    if(!inventory.currency) {
+      inventory.currency = document.getElementById('currencySymbolSelect').value;
+    }
+
     const file = new Blob([JSON.stringify(inventory)], { type: 'text/plain' });
     const link = document.getElementById('downloadLink');
 
     link.href = URL.createObjectURL(file);
     link.download = "inventory.txt";
     link.click();
-
-    document.getElementById('saveFileBtn').classList.add('d-none');
   }
 
   window.sortItems = (mode) => {
@@ -612,8 +637,6 @@
 
     document.getElementById('item-list').innerHTML = '';
     renderItems(sortedItems);
-
-    document.getElementById('saveFileBtn').classList.remove('d-none');
   },
 
   /**
@@ -694,8 +717,8 @@
     event.preventDefault();
 
     let id = parseInt(event.target.itemId.value);
-    let itemName = event.target.itemName.value;
-    let itemType = event.target.itemType.value;
+    let itemName = event.target.itemName.value.trim();
+    let itemType = event.target.itemType.value.trim();
     let itemColour = event.target.itemColour.value;
     let itemDate = event.target.itemDate.value;
 
@@ -751,9 +774,13 @@
     // if blank quantity, default to 1
     parseQuantity = itemQuantity === '' ? 1 : parseQuantity;
 
-    id > 0
-      ? dbUpdateItem(id, itemName, itemType, itemColour, parseQuantity, dateTime, parsePrice)
-      : dbAddItem(itemName, itemType, itemColour, parseQuantity, dateTime, parsePrice);
+    // add or update the item
+    if(isNaN(id)) {
+      dbAddItem(itemName, itemType, itemColour, parseQuantity, dateTime, parsePrice);
+    }
+    else {
+      dbUpdateItem(id, itemName, itemType, itemColour, parseQuantity, dateTime, parsePrice);
+    }
   }
 
   /**

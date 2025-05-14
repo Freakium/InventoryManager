@@ -25,6 +25,7 @@ const api = (function () {
      */
     loadInventory(inv) {
       localStorage.setItem('title', inv.title);
+      localStorage.setItem('currency', inv.currency);
       saveItemsToLocalStorage(inv.items);
     },
 
@@ -34,10 +35,12 @@ const api = (function () {
      */
     fetchInventory() {
       const title = localStorage.getItem('title');
+      const currency = localStorage.getItem('currency');
       const items = getItemsFromLocalStorage();
 
       const inventory = {
         title,
+        currency,
         items
       };
 
@@ -75,6 +78,21 @@ const api = (function () {
      */
     editTitle: (name) => {
       localStorage.setItem('title', name);
+    },
+
+    /**
+     * Fetches the currency symbol.
+     */
+    fetchCurrency: () => {
+      return localStorage.getItem('currency');
+    },
+    
+    /**
+     * Edits the currency symbol.
+     * @param {*} symbol The currency symbol
+     */
+    editCurrency: (symbol) => {
+      localStorage.setItem('currency', symbol);
     },
 
     /**
