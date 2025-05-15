@@ -46,7 +46,7 @@ const api = (function () {
 
       return inventory;
     },
-    
+
     /**
      * Fetches a list of all items.
      * @returns array of items as JSON objects
@@ -71,7 +71,7 @@ const api = (function () {
     fetchTitle: () => {
       return localStorage.getItem('title');
     },
-    
+
     /**
      * Edits the title of the inventory list.
      * @param {*} name The new title name
@@ -86,7 +86,7 @@ const api = (function () {
     fetchCurrency: () => {
       return localStorage.getItem('currency');
     },
-    
+
     /**
      * Edits the currency symbol.
      * @param {*} symbol The currency symbol
@@ -109,7 +109,7 @@ const api = (function () {
     addItem: (id, name, type, colour, quantity, date, price) => {
       let items = getItemsFromLocalStorage();
       const index = items.findIndex(el => el.id === id);
-      if(index !== -1) {
+      if (index !== -1) {
         return false;
       }
 
@@ -144,7 +144,7 @@ const api = (function () {
     updateItem: (id, name, type, colour, quantity, date, price) => {
       let items = getItemsFromLocalStorage();
       const index = items.findIndex(el => el.id === id);
-      if(index === -1) {
+      if (index === -1) {
         return false;
       }
 
@@ -158,7 +158,7 @@ const api = (function () {
         date,
         price
       };
-      
+
       // update localStorage
       saveItemsToLocalStorage(items);
 
@@ -186,7 +186,7 @@ const api = (function () {
       }
       else {
         items.splice(index, 1);
-      
+
         // update localStorage
         saveItemsToLocalStorage(items);
 
@@ -212,7 +212,7 @@ const api = (function () {
      */
     sortItemsByName: (isDescending = false) => {
       let items = getItemsFromLocalStorage();
-      items.sort((a,b) => isDescending ? b.name.localeCompare(a.name) : a.name.localeCompare(b.name) || a.type.localeCompare(b.type));
+      items.sort((a, b) => isDescending ? b.name.localeCompare(a.name) : a.name.localeCompare(b.name) || a.type.localeCompare(b.type));
       return items;
     },
 
@@ -223,7 +223,7 @@ const api = (function () {
      */
     sortItemsByType: (isDescending = false) => {
       let items = getItemsFromLocalStorage();
-      items.sort((a,b) => isDescending ? b.type.localeCompare(a.type) : a.type.localeCompare(b.type) || a.name.localeCompare(b.name));
+      items.sort((a, b) => isDescending ? b.type.localeCompare(a.type) : a.type.localeCompare(b.type) || a.name.localeCompare(b.name));
       return items;
     },
 
@@ -234,7 +234,7 @@ const api = (function () {
      */
     sortItemsByDate: (isDescending = false) => {
       let items = getItemsFromLocalStorage();
-      items.sort((a,b) => isDescending ? new Date(b.date) - new Date(a.date) : new Date(a.date) - new Date(b.date) ||
+      items.sort((a, b) => isDescending ? new Date(b.date) - new Date(a.date) : new Date(a.date) - new Date(b.date) ||
         a.type.localeCompare(b.type) || a.name.localeCompare(b.name));
       return items;
     },
@@ -246,7 +246,7 @@ const api = (function () {
      */
     sortItemsByQuantity: (isDescending = false) => {
       let items = getItemsFromLocalStorage();
-      items.sort((a,b) => isDescending ? b.quantity - a.quantity : a.quantity - b.quantity || a.type.localeCompare(b.type) || a.name.localeCompare(b.name));
+      items.sort((a, b) => isDescending ? b.quantity - a.quantity : a.quantity - b.quantity || a.type.localeCompare(b.type) || a.name.localeCompare(b.name));
       return items;
     }
   }

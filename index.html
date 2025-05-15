@@ -28,13 +28,6 @@
       </button>
       <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav ms-auto">
-          <li class="nav-item">
-            <button class="nav-link" role="button" onclick="loadFileListener()" title="Load File"><i class="bi bi-download mx-2"></i>Load File</button>
-            <input class="d-none" id="fileInput" type="file" accept=".txt" onchange="loadFile()" autocomplete="off">
-          </li>
-          <li class="nav-item">
-            <button class="nav-link" role="button" onclick="saveFile()" title="Save File"><i class="bi bi-floppy-fill mx-2"></i>Save File</button>
-          </li>
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
               <i class="bi bi-filter-left mx-2"></i>Sort
@@ -83,6 +76,12 @@
                   <label for="itemColour">Currency Symbol</label>
                 </div>
               </li>
+              <li class="nav-item">
+                <button class="nav-link" id="themeBtn" role="button" onclick="toggleTheme()" title="Toggle Theme">
+                  <i class="bi bi-moon-stars-fill mx-2"></i>Dark Mode
+                </button>
+              </li>
+              <li><hr class="dropdown-divider"></li>
               <li>
                 <button class="nav-link" role="button" title="Clear Data" data-bs-toggle="modal" data-bs-target="#clearModal">
                   <i class="bi bi-eraser-fill mx-2"></i>Clear Data
@@ -91,9 +90,11 @@
             </ul>
           </li>
           <li class="nav-item">
-            <button class="nav-link" id="themeBtn" role="button" onclick="toggleTheme()" title="Toggle Theme">
-              <i class="bi bi-moon-stars-fill mx-2"></i>Dark Mode
-            </button>
+            <button class="nav-link" role="button" onclick="loadFileListener()" title="Load File"><i class="bi bi-download mx-2"></i>Load File</button>
+            <input class="d-none" id="fileInput" type="file" accept=".txt" onchange="loadFile()" autocomplete="off">
+          </li>
+          <li class="nav-item">
+            <button class="nav-link" role="button" onclick="saveFile()" title="Save File"><i class="bi bi-floppy-fill mx-2"></i>Save File</button>
           </li>
         </ul>
       </div>
@@ -104,6 +105,7 @@
   <div class="container mt-3">
     <input class="form-control form-control-lg mb-3" id="inventoryTitle" onchange="setTitle(this)" value="Inventory" autocomplete="off">
     <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4 mb-5" id="item-list"></div>
+    <a class="d-none" id="downloadLink"></a>
   </div>
 
   <!-- FOOTER -->

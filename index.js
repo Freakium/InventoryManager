@@ -2,7 +2,7 @@
 
   // off canvas element for CRUD form
   const itemFormCanvas = new bootstrap.Offcanvas('#itemForm');
-  
+
   // counts number of non-sort item drags before displaying help message
   let sortHelpCounter = 4;
 
@@ -76,10 +76,13 @@
   });
 
   /**
-   * Focus on item name input once the offcanvas is completely open.
+   * During Add Item mode, focus on item name input once the offcanvas is completely open.
    */
   document.getElementById('itemForm').addEventListener('shown.bs.offcanvas', e => {
-    document.getElementById('itemName').focus();
+    const id = document.getElementById('itemId').value;
+    if (!id) {
+      document.getElementById('itemName').focus();
+    }
   })
 
   /**
@@ -245,11 +248,11 @@
 
     items.forEach((item) => {
       createItemCard(item.id, item.name, item.type, item.colour, item.quantity, item.date, item.price);
-      
+
       // add to total
       let price = parseFloat(item.price);
       let quantity = parseInt(item.quantity);
-      if(!isNaN(price)) {
+      if (!isNaN(price)) {
         total += price * quantity;
       }
     });
@@ -353,7 +356,7 @@
     document.getElementById(`${id}-itemType`).innerHTML = itemType;
     document.getElementById(`${id}-quantity`).value = quantity;
     document.getElementById(`${id}-itemDate`).innerHTML = dateTime;
-    
+
     // update price and display
     let priceEl = document.getElementById(`${id}-itemPrice`);
     priceEl.setAttribute('data-price', price);
@@ -376,13 +379,13 @@
     document.querySelectorAll('.badge-price').forEach((el) => {
       let price = parseFloat(el.getAttribute('data-price'));
       let quantity = parseInt(el.getAttribute('data-quantity'));
-      if(!isNaN(price)) {
+      if (!isNaN(price)) {
         total += price * quantity;
       }
     });
 
     // add new price to total
-    if(newPrice) {
+    if (newPrice) {
       total += newPrice;
     }
 
@@ -471,7 +474,7 @@
    * Display total price if applicable. Hides total price if 0.
    */
   function displayTotal(total) {
-    if(total) {
+    if (total) {
       document.getElementById('totalAmount').innerHTML = `<span class="currency-symbol">${currencySymbol}</span>${currencyFormat(total)}`;
       document.getElementById('totalArea').classList.remove('d-none');
     }
@@ -487,7 +490,7 @@
    * @returns The formatted US currency amount
    */
   function currencyFormat(price) {
-    return price.toLocaleString('en-US', {minimumFractionDigits: 2});
+    return price.toLocaleString('en-US', { minimumFractionDigits: 2 });
   }
 
   /**
@@ -565,7 +568,7 @@
     else {
       alertMessage('messageArea', 'File not found.', 'danger', 3);
     }
-  }
+  },
 
   /**
    * Save inventory as a text file.
@@ -574,16 +577,16 @@
     let inventory = api.fetchInventory();
 
     // Validations
-    if(!inventory.items.length) {
+    if (!inventory.items.length) {
       alertMessage('messageArea', 'Save canceled. There are no items in the list.', 'danger', 3);
       return;
     }
 
     // fill null values
-    if(!inventory.title) {
+    if (!inventory.title) {
       inventory.title = document.getElementById('inventoryTitle').value;
     }
-    if(!inventory.currency) {
+    if (!inventory.currency) {
       inventory.currency = document.getElementById('currencySymbolSelect').value;
     }
 
@@ -593,7 +596,7 @@
     link.href = URL.createObjectURL(file);
     link.download = "inventory.txt";
     link.click();
-  }
+  },
 
   window.sortItems = (mode) => {
     if (!api.fetchItems().length) {
@@ -602,7 +605,7 @@
     }
 
     let sortedItems;
-    switch(mode) {
+    switch (mode) {
       // alphabet (dsc)
       case '1':
         sortedItems = api.sortItemsByName(true);
@@ -765,7 +768,7 @@
     }
 
     // if no date selected, use current date/time
-    if(!itemDate) {
+    if (!itemDate) {
       date = new Date();
       date.setSeconds(0); // seconds are not needed
     }
@@ -775,8 +778,11 @@
     // if blank quantity, default to 1
     parseQuantity = itemQuantity === '' ? 1 : parseQuantity;
 
+    // if blank price, default to 0
+    parsePrice = itemPrice === '' ? 0 : parsePrice;
+
     // add or update the item
-    if(isNaN(id)) {
+    if (isNaN(id)) {
       dbAddItem(itemName, itemType, itemColour, parseQuantity, dateTime, parsePrice);
     }
     else {
