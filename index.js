@@ -36,6 +36,7 @@
       items: `.col:not('#addItemBtn')`,
       opacity: 0.8,
       placeholder: 'sortable-placeholder',
+      tolerance: 'pointer',
       stop: function (event, ui) {
         let selected = ui.item[0];
         let itemList = api.fetchItems();
