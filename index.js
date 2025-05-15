@@ -767,6 +767,7 @@
     // if no date selected, use current date/time
     if(!itemDate) {
       date = new Date();
+      date.setSeconds(0); // seconds are not needed
     }
     let dateSplit = date.toISOString().split('.');
     let dateTime = dateSplit[0] + 'Z';
