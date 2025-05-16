@@ -16,7 +16,9 @@
    */
   const dtp = flatpickr('.datepicker', {
     enableTime: true,
-    dateFormat: "Y-m-d H:i"
+    dateFormat: "Y-m-d H:i",
+    altInput: true,
+    altFormat: "Y-m-d, h:i K"
   });
 
   /**
@@ -308,7 +310,10 @@
    */
   function createItemCard(id, itemName, itemType, colour, quantity, itemDate, price) {
     const date = new Date(itemDate);
-    const dateTime = date.toLocaleString();
+    const dateTime = date.toLocaleString('en-US', {
+      dateStyle: 'long',
+      timeStyle: 'short'
+    });
 
     document.getElementById('item-list').innerHTML +=
       `<div class="col" id="${id}">
