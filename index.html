@@ -16,7 +16,7 @@
 
 <body class="d-flex flex-column vh-100">
   <!-- NAVBAR -->
-  <nav class="navbar navbar-expand-lg bg-secondary-subtle">
+  <nav class="navbar navbar-expand-sm bg-secondary-subtle">
     <div class="container-fluid">
       <div class="navbar-brand">
         <img src="img/favicon.ico" alt="Logo" height="24" class="d-inline-block align-text-top">
@@ -28,12 +28,19 @@
       </button>
       <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav ms-auto">
-          <li class="nav-item">
-            <button class="nav-link" role="button" onclick="loadFileListener()" title="Load File"><i class="bi bi-download mx-2"></i>Load File</button>
-            <input class="d-none" id="fileInput" type="file" accept=".txt" onchange="loadFile()" autocomplete="off">
-          </li>
-          <li class="nav-item">
-            <button class="nav-link" role="button" onclick="saveFile()" title="Save File"><i class="bi bi-floppy-fill mx-2"></i>Save File</button>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="bi bi-file-earmark mx-2"></i>File
+            </a>
+            <ul class="dropdown-menu">
+              <li>
+                <button class="nav-link" role="button" onclick="loadFileListener()" title="Load File"><i class="bi bi-download mx-2"></i>Load File</button>
+                <input class="d-none" id="fileInput" type="file" accept=".txt" onchange="loadFile()" autocomplete="off">
+              </li>
+              <li>
+                <button class="nav-link" role="button" onclick="saveFile()" title="Save File"><i class="bi bi-floppy-fill mx-2"></i>Save File</button>
+              </li>
+            </ul>
           </li>
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
