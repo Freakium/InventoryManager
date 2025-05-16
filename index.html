@@ -28,6 +28,13 @@
       </button>
       <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav ms-auto">
+          <li class="nav-item">
+            <button class="nav-link" role="button" onclick="loadFileListener()" title="Load File"><i class="bi bi-download mx-2"></i>Load File</button>
+            <input class="d-none" id="fileInput" type="file" accept=".txt" onchange="loadFile()" autocomplete="off">
+          </li>
+          <li class="nav-item">
+            <button class="nav-link" role="button" onclick="saveFile()" title="Save File"><i class="bi bi-floppy-fill mx-2"></i>Save File</button>
+          </li>
           <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
               <i class="bi bi-filter-left mx-2"></i>Sort
@@ -63,7 +70,7 @@
             <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
               <i class="bi bi-gear mx-2"></i>Settings
             </a>
-            <ul class="dropdown-menu">
+            <ul class="dropdown-menu dropdown-menu-end">
               <li>
                 <div class="form-floating">
                   <select class="form-select" id="currencySymbolSelect" autocomplete="off">
@@ -76,25 +83,18 @@
                   <label for="itemColour">Currency Symbol</label>
                 </div>
               </li>
-              <li class="nav-item">
-                <button class="nav-link" id="themeBtn" role="button" onclick="toggleTheme()" title="Toggle Theme">
-                  <i class="bi bi-moon-stars-fill mx-2"></i>Dark Mode
-                </button>
-              </li>
-              <li><hr class="dropdown-divider"></li>
               <li>
                 <button class="nav-link" role="button" title="Clear Data" data-bs-toggle="modal" data-bs-target="#clearModal">
                   <i class="bi bi-eraser-fill mx-2"></i>Clear Data
                 </button>
               </li>
+              <li><hr class="dropdown-divider"></li>
+              <li class="nav-item">
+                <button class="nav-link" id="themeBtn" role="button" onclick="toggleTheme()" title="Toggle Theme">
+                  <i class="bi bi-moon-stars-fill mx-2"></i>Dark Mode
+                </button>
+              </li>
             </ul>
-          </li>
-          <li class="nav-item">
-            <button class="nav-link" role="button" onclick="loadFileListener()" title="Load File"><i class="bi bi-download mx-2"></i>Load File</button>
-            <input class="d-none" id="fileInput" type="file" accept=".txt" onchange="loadFile()" autocomplete="off">
-          </li>
-          <li class="nav-item">
-            <button class="nav-link" role="button" onclick="saveFile()" title="Save File"><i class="bi bi-floppy-fill mx-2"></i>Save File</button>
           </li>
         </ul>
       </div>
