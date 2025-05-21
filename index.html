@@ -16,7 +16,7 @@
 
 <body class="d-flex flex-column vh-100">
   <!-- NAVBAR -->
-  <nav class="navbar navbar-expand-sm bg-secondary-subtle">
+  <nav class="navbar navbar-expand-sm fixed-top bg-secondary-subtle">
     <div class="container-fluid">
       <div class="navbar-brand">
         <img src="img/favicon.ico" alt="Logo" height="24" class="d-inline-block align-text-top">
@@ -108,8 +108,11 @@
     </div>
   </nav>
 
+  <!-- EXTRA SPACING -->
+  <hr>
+
   <!-- INVENTORY LIST -->
-  <div class="container mt-3">
+  <div class="container mt-5">
     <input class="form-control form-control-lg mb-3" id="inventoryTitle" onchange="setTitle(this)" value="Inventory" autocomplete="off">
     <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4 mb-5" id="item-list"></div>
     <a class="d-none" id="downloadLink"></a>
