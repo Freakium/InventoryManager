@@ -86,6 +86,12 @@
     if (!id) {
       document.getElementById('itemName').focus();
     }
+
+    // always show the optionals
+    let optional = bootstrap.Collapse.getInstance(document.getElementById('collapseOpt'));
+    if(optional) {
+      optional.show();
+    }
   })
 
   /**
@@ -810,7 +816,7 @@
     document.getElementById('deleteItemName').innerHTML = name;
     document.getElementById('deleteDateTime').innerHTML = dateTime;
 
-    var modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('deleteModal'));
+    let modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('deleteModal'));
     modal.show();
   }
 
