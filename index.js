@@ -746,27 +746,27 @@
 
     // Validations
     if (!itemName) {
-      alertMessage('itemFormMessageArea', 'Please enter item name.', 'danger');
+      alertMessage('itemFormMessageArea', 'Please enter item name.', 'danger', 3);
       return;
     }
     else if (!itemType) {
-      alertMessage('itemFormMessageArea', 'Please enter item type.', 'danger');
+      alertMessage('itemFormMessageArea', 'Please enter item type.', 'danger', 3);
       return;
     }
     else if (!itemColour) {
-      alertMessage('itemFormMessageArea', 'Please select a colour.', 'danger');
+      alertMessage('itemFormMessageArea', 'Please select a colour.', 'danger', 3);
       return;
     }
     else if (isNaN(parseQuantity) && itemQuantity !== '') {
-      alertMessage('itemFormMessageArea', 'Please enter a valid quantity.', 'danger');
+      alertMessage('itemFormMessageArea', 'Please enter a valid quantity.', 'danger', 3);
       return;
     }
     else if (itemDate && !date) {
-      alertMessage('itemFormMessageArea', 'Please enter a valid date.', 'danger');
+      alertMessage('itemFormMessageArea', 'Please enter a valid date.', 'danger', 3);
       return;
     }
     else if (itemPrice && (isNaN(parsePrice) || parsePrice < 0)) {
-      alertMessage('itemFormMessageArea', 'Please enter a valid price.', 'danger');
+      alertMessage('itemFormMessageArea', 'Please enter a valid price.', 'danger', 3);
       return;
     }
 
@@ -775,7 +775,7 @@
     if (nameCheck && nameCheck.id !== id) {
       let date = new Date(nameCheck.date);
       let dateTime = date.toLocaleString();
-      alertMessage('itemFormMessageArea', `Item already exists and was added on <em>${dateTime}</em>`, 'danger');
+      alertMessage('itemFormMessageArea', `Item already exists and was added on <em>${dateTime}</em>`, 'danger', 3);
       return;
     }
 
@@ -800,6 +800,13 @@
     else {
       dbUpdateItem(id, itemName, itemType, itemColour, parseQuantity, dateTime, parsePrice);
     }
+  }
+
+  /**
+   * Button listener for add/update form.
+   */
+  window.addUpdateSave = () => {
+    document.getElementById('addUpdateForm').requestSubmit();
   }
 
   /**

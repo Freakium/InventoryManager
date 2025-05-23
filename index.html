@@ -153,14 +153,14 @@
       <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
     </div>
     <div class="offcanvas-body">
-      <form method="post" onsubmit="addOrUpdateItem(event);">
+      <form method="post" id="addUpdateForm" onsubmit="addOrUpdateItem(event)">
         <input type="hidden" id="itemId">
         <div class="form-floating mb-3">
-          <input class="form-control" id="itemName" name="itemName" placeholder="Item Name" autocomplete="off">
+          <input class="form-control" id="itemName" name="itemName" placeholder="Item Name" autocomplete="off" required>
           <label for="itemName">Item Name</label>
         </div>
         <div class="form-floating mb-3">
-          <input class="form-control" id="itemType" name="itemType" placeholder="Item Type" autocomplete="off">
+          <input class="form-control" id="itemType" name="itemType" placeholder="Item Type" autocomplete="off" required>
           <label for="itemType">Item Type</label>
         </div>
         <div class="accordion mb-3" id="accordionOpt">
@@ -195,13 +195,13 @@
             </div>
           </div>
         </div>
-        <div class="messageBox mb-3" id="itemFormMessageArea"><br></div>
-        <div class="d-flex justify-content-between">
-          <button class="btn btn-primary"><i class="bi bi-floppy mx-2"></i>Save</button>
-          <button class="btn btn-danger d-none" id="deleteItemBtn"><i class="bi bi-trash3 mx-2"></i>Delete</button>
-        </div>
       </form>
     </div>
+    <div class="offcanvas-footer d-flex justify-content-between border-top px-3 py-2">
+      <button class="btn btn-primary" onclick="addUpdateSave()"><i class="bi bi-floppy mx-2"></i>Save</button>
+      <button class="btn btn-danger d-none" id="deleteItemBtn"><i class="bi bi-trash3 mx-2"></i>Delete</button>
+    </div>
+    <div class="bottom-interaction" id="itemFormMessageArea"></div>
   </div>
 
   <!-- DELETION MODAL -->
