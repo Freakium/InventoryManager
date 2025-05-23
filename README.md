@@ -5,4 +5,4 @@ No server needed. This project only uses JavaScript and can run on any browser.
 
 Users can load a previously saved file (JSON in `.txt` file) to start where they left off.
 
-This project is hosted on: https://invman.scienceontheweb.net/ (no SSL certificate)
+To view this project live, [visit this link](https://freakium.github.io/invman/).
