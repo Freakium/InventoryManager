@@ -19,8 +19,16 @@
 }
 
 #itemFormMessageArea {
-  right: 5px;
+  width: inherit;
+  right: 0;
   bottom: 45px;
+}
+
+#itemFormMessageArea:has(> .alert) {
+  .alert {
+    width: fit-content;
+    margin-left: auto;
+  }
 }
 
 #item-list .card {

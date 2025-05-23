@@ -438,7 +438,7 @@
     // set message
     let icon = colour === 'success' ? 'bi bi-check-circle' : 'bi bi-exclamation-triangle';
     let content =
-      `<div class="alert alert-${colour} alert-dismissible fade show d-flex mx-auto shadow py-2" role="alert">
+      `<div class="alert alert-${colour} alert-dismissible fade show d-flex shadow py-2" role="alert">
         <i class="${icon} me-2"></i><span class="fw-bold mx-auto text-center">${message}</span>
         <button type="button" class="btn-close pt-1" data-bs-dismiss="alert" aria-label="Close"></button>
       </div>`;
@@ -775,7 +775,7 @@
     if (nameCheck && nameCheck.id !== id) {
       let date = new Date(nameCheck.date);
       let dateTime = date.toLocaleString();
-      alertMessage('itemFormMessageArea', `Item already exists and was added on <em>${dateTime}</em>`, 'danger', 3);
+      alertMessage('itemFormMessageArea', `Item already exists and was added on <em>${dateTime}</em>`, 'danger', 4);
       return;
     }
 
