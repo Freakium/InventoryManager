@@ -31,6 +31,10 @@
   }
 }
 
+#itemWeightUnit {
+  font-family: 'Courier New', Courier, monospace;
+}
+
 #item-list .card {
   min-height: 221px;
   transition: 0.3s;

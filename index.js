@@ -4,10 +4,10 @@
   const itemFormCanvas = new bootstrap.Offcanvas('#itemForm');
 
   // counts number of non-sort item drags before displaying help message
-  let sortHelpCounter = 4;
+  let SORT_HELP_COUNTER = 4;
 
   // the selected currency
-  let currencySymbol = '$';
+  let CURRENCY_SYMBOL = '$';
 
   /*========================== AUTORUN ===========================*/
 
@@ -52,12 +52,12 @@
 
           // item position unchanged
           if (sortIndex === curIndex) {
-            if (!sortHelpCounter) {
+            if (!SORT_HELP_COUNTER) {
               alertMessage('messageArea', "If you are having issues scrolling on mobile, place your finger on an item's quantity box to scroll the page.", 'warning', 8);
-              sortHelpCounter = 4;
+              SORT_HELP_COUNTER = 4;
             }
             else {
-              sortHelpCounter--;
+              SORT_HELP_COUNTER--;
             }
           }
           // item position changed
@@ -67,8 +67,8 @@
             itemList.splice(sortIndex, 0, item);
             api.updateItems(itemList);
 
-            // reset sortHelpCounter
-            sortHelpCounter = 4;
+            // reset SORT_HELP_COUNTER
+            SORT_HELP_COUNTER = 4;
           }
         }
         else {
@@ -162,14 +162,19 @@
    * @param {*} quantity The quantity of the item
    * @param {*} itemDate The item's set date in ISO format
    * @param {*} price The optional price of the item
+   * @param {*} weight The optional weight of the item
+   * @param {*} weightUnit The optional weight unit
    */
-  function dbAddItem(itemName, itemType, colour, quantity, itemDate, price) {
+  function dbAddItem(itemName, itemType, colour, quantity, itemDate, price, weight, weightUnit) {
     // create new id
     let id = Date.now();
 
-    if (api.addItem(id, itemName, itemType, colour, quantity, itemDate, price)) {
+    if (api.addItem(id, itemName, itemType, colour, quantity, itemDate, price, weight, weightUnit)) {
+      // calculate price and set up for display
+      let priceWeight = readyPriceWeightDisplay(price, weight, weightUnit);
+
       // Add item to item list
-      createItemCard(id, itemName, itemType, colour, quantity, itemDate, price);
+      createItemCard(id, itemName, itemType, colour, quantity, itemDate, priceWeight.price, priceWeight.weightUnit);
       appendAddItemButton();
       calculateTotal();
 
@@ -191,10 +196,15 @@
    * @param {*} quantity The quantity of the item
    * @param {*} itemDate The item's set date in ISO format
    * @param {*} price The optional price of the item
+   * @param {*} weight The optional weight of the item
+   * @param {*} weightUnit The optional weight unit
    */
-  function dbUpdateItem(id, itemName, itemType, colour, quantity, itemDate, price) {
-    if (api.updateItem(id, itemName, itemType, colour, quantity, itemDate, price)) {
-      updateItemCard(id, itemName, itemType, colour, quantity, itemDate, price);
+  function dbUpdateItem(id, itemName, itemType, colour, quantity, itemDate, price, weight, weightUnit) {
+    if (api.updateItem(id, itemName, itemType, colour, quantity, itemDate, price, weight, weightUnit)) {
+      // calculate price and set up for display
+      let priceWeight = readyPriceWeightDisplay(price, weight, weightUnit);
+
+      updateItemCard(id, itemName, itemType, colour, quantity, itemDate, priceWeight.price, priceWeight.weightUnit);
       calculateTotal();
 
       // UI items
@@ -256,7 +266,10 @@
     let total = 0;
 
     items.forEach((item) => {
-      createItemCard(item.id, item.name, item.type, item.colour, item.quantity, item.date, item.price);
+      // calculate price and set up for display
+      let priceWeight = readyPriceWeightDisplay(item.price, item.weight, item.weightUnit);
+
+      createItemCard(item.id, item.name, item.type, item.colour, item.quantity, item.date, priceWeight.price, priceWeight.weightUnit);
 
       // add to total
       let price = parseFloat(item.price);
@@ -286,6 +299,8 @@
     document.getElementById('itemColour').value = item.colour;
     document.getElementById('itemQuantity').value = item.quantity;
     document.getElementById('itemPrice').value = item.price === 0 ? '' : parseFloat(item.price).toFixed(2);
+    document.getElementById('itemWeight').value = item.weight === 0 ? '' : parseFloat(item.weight).toFixed(2);
+    document.getElementById('itemWeightUnit').innerHTML = item.weightUnit ?? 'kg';
 
     // parse date
     let date = new Date(item.date);
@@ -313,13 +328,15 @@
    * @param {*} quantity The quantity of the item
    * @param {*} itemDate The item's set date in ISO format
    * @param {*} price The optional price of the item
+   * @param {*} weightUnit The optional weight unit
    */
-  function createItemCard(id, itemName, itemType, colour, quantity, itemDate, price) {
+  function createItemCard(id, itemName, itemType, colour, quantity, itemDate, price, weightUnit) {
     const date = new Date(itemDate);
     const dateTime = date.toLocaleString('en-US', {
       dateStyle: 'long',
       timeStyle: 'short'
     });
+    const priceWeight = currencyFormat(price ?? 0) + (weightUnit ?? '');
 
     document.getElementById('item-list').innerHTML +=
       `<div class="col" id="${id}">
@@ -335,7 +352,7 @@
             <div class="d-flex justify-content-between mb-3">
               <span class="badge bg-primary" id="${id}-itemType" title="Item Type">${itemType}</span>
               <span class="badge bg-success badge-price${price ? '' : ' d-none'}" id="${id}-itemPrice" data-price="${price ?? 0}" data-quantity="${quantity}" title="Item Price">
-                <span class="currency-symbol">${currencySymbol}</span>${currencyFormat(price ?? 0)}
+                <span class="currency-symbol">${CURRENCY_SYMBOL}</span>${priceWeight}
               </span>
             </div>
             <div class="form-floating shadow">
@@ -359,10 +376,12 @@
    * @param {*} quantity The quantity of the item
    * @param {*} itemDate The item's set date in ISO format
    * @param {*} price The optional price of the item
+   * @param {*} weightUnit The optional weight unit
    */
-  function updateItemCard(id, itemName, itemType, colour, quantity, itemDate, price) {
-    let date = new Date(itemDate);
-    let dateTime = date.toLocaleString();
+  function updateItemCard(id, itemName, itemType, colour, quantity, itemDate, price, weightUnit) {
+    const date = new Date(itemDate);
+    const dateTime = date.toLocaleString();
+    const priceWeight = currencyFormat(price ?? 0) + (weightUnit ?? '');
 
     document.getElementById(`${id}-itemName`).innerHTML = itemName;
     document.getElementById(`${id}-itemType`).innerHTML = itemType;
@@ -373,7 +392,7 @@
     let priceEl = document.getElementById(`${id}-itemPrice`);
     priceEl.setAttribute('data-price', price);
     priceEl.setAttribute('data-quantity', quantity);
-    priceEl.innerHTML = `<span class="currency-symbol">${currencySymbol}</span>${currencyFormat(price)}`;
+    priceEl.innerHTML = `<span class="currency-symbol">${CURRENCY_SYMBOL}</span>${priceWeight}`;
     price ? priceEl.classList.remove('d-none') : priceEl.classList.add('d-none');
 
     // set header colour
@@ -412,6 +431,57 @@
     dbFetchItems(isFile);
     dbFetchTitle();
     dbFetchCurrency();
+  }
+
+  /**
+   * Converts kilograms to pounds.
+   * @param {*} kg The kilogram value
+   * @returns The pound value to two decimal places
+   */
+  function kgToLb(kg) {
+    const conversionFactor = 2.2046226218;
+    return (kg * conversionFactor).toFixed(2);
+  }
+
+  /**
+   * Converts pounds to kilograms.
+   * @param {*} kg The pound value
+   * @returns The kilogram value to two decimal places
+   */
+  function lbToKg(lb) {
+    const conversionFactor = 0.45359237;
+    return (lb * conversionFactor).toFixed(2);
+  }
+
+  /**
+   * Calculates the price of an item according to the price per weight and total weight of the item.
+   * @param {*} price The price of the item per weight
+   * @param {*} weight The total weight of the item
+   * @returns The price of the item
+   */
+  function calculateWeightedTotal(price, weight) {
+    return (price * weight).toFixed(2);
+  }
+
+  /**
+   * Sets up price and weight unit for display on the item card. Sets blank weight unit if no weight found.
+   * @param {*} price The price per weight
+   * @param {*} weight The item weight
+   * @param {*} weightUnit The weight unit
+   * @returns object with price and weight unit
+   */
+  function readyPriceWeightDisplay(price, weight, weightUnit) {
+    // calculate price and weight
+    let itemPrice = price;
+    let itemWeightUnit = weight ? `/${weightUnit}` : '';
+    if(weight) {
+      itemPrice = calculateWeightedTotal(itemPrice, weight);
+    }
+
+    return {
+      price: itemPrice,
+      weightUnit: itemWeightUnit
+    };
   }
 
   /*====================== DISPLAY FUNCTIONS =====================*/
@@ -487,7 +557,7 @@
    */
   function displayTotal(total) {
     if (total) {
-      document.getElementById('totalAmount').innerHTML = `<span class="currency-symbol">${currencySymbol}</span>${currencyFormat(total)}`;
+      document.getElementById('totalAmount').innerHTML = `<span class="currency-symbol">${CURRENCY_SYMBOL}</span>${currencyFormat(total)}`;
       document.getElementById('totalArea').classList.remove('d-none');
     }
     else {
@@ -696,6 +766,8 @@
     document.getElementById('itemColour').value = "";
     document.getElementById('itemQuantity').value = "";
     document.getElementById('itemPrice').value = "";
+    document.getElementById('itemWeight').value = "";
+    document.getElementById('itemWeightUnit').innerHTML = "kg";
 
     // clear datepicker
     dtp.clear();
@@ -725,7 +797,7 @@
 
   /**
    * The form's Save button listener which determines whether it's an add or update item operation.
-   * @param {*} event The form's event
+   * @param {*} event The HTML event
    * @returns Validation error message
    */
   window.addOrUpdateItem = (event) => {
@@ -736,12 +808,15 @@
     let itemType = event.target.itemType.value.trim();
     let itemColour = event.target.itemColour.value;
     let itemDate = event.target.itemDate.value;
+    let weightUnit = document.getElementById('itemWeightUnit').innerHTML;
 
     // parsing
     let itemQuantity = event.target.itemQuantity.value;
     let parseQuantity = parseInt(itemQuantity);
     let itemPrice = event.target.itemPrice.value;
     let parsePrice = parseFloat(itemPrice);
+    let itemWeight = event.target.itemWeight.value;
+    let parseWeight = parseFloat(itemWeight);
     let date = new Date(itemDate);
 
     // Validations
@@ -769,6 +844,10 @@
       alertMessage('itemFormMessageArea', 'Please enter a valid price.', 'danger', 3);
       return;
     }
+    else if (itemWeight && (isNaN(parseWeight) || parseWeight < 0)) {
+      alertMessage('itemFormMessageArea', 'Please enter a valid weight.', 'danger', 3);
+      return;
+    }
 
     // make sure item name is unique
     let nameCheck = api.searchItems(itemName);
@@ -792,13 +871,16 @@
 
     // if blank price, default to 0
     parsePrice = itemPrice === '' ? 0 : parsePrice;
+    
+    // if blank weight, default to 0
+    parseWeight = itemWeight === '' ? 0 : parseWeight;
 
     // add or update the item
     if (isNaN(id)) {
-      dbAddItem(itemName, itemType, itemColour, parseQuantity, dateTime, parsePrice);
+      dbAddItem(itemName, itemType, itemColour, parseQuantity, dateTime, parsePrice, parseWeight, weightUnit);
     }
     else {
-      dbUpdateItem(id, itemName, itemType, itemColour, parseQuantity, dateTime, parsePrice);
+      dbUpdateItem(id, itemName, itemType, itemColour, parseQuantity, dateTime, parsePrice, parseWeight, weightUnit);
     }
   }
 
@@ -811,7 +893,7 @@
 
   /**
    * Display the item deletion modal.
-   * @param {*} event The form's event
+   * @param {*} event The HTML event
    * @param {*} id The id of the item
    * @param {*} name The name of the item
    * @param {*} dateTime The items appointment date/time
@@ -833,5 +915,30 @@
   window.deleteItem = () => {
     let id = document.getElementById('deleteModal').getAttribute('data-id');
     dbDeleteItem(id);
+  }
+
+  /**
+   * Toggles weight unit between kilograms and pounds.
+   * @param {*} el The button element
+   * @param {*} event The HTML event
+   */
+  window.toggleWeightUnit = (el, event) => {
+    event.preventDefault();
+    
+    let currentUnit = el.innerHTML;
+    let weightEl = document.getElementById('itemWeight');
+    let weight = parseFloat(weightEl.value);
+
+    el.innerHTML = el.innerHTML === 'kg' ? 'lb' : 'kg';
+    if(isNaN(weight)) return;
+
+    // convert lb to kg
+    if(currentUnit === 'kg') {
+      weightEl.value = kgToLb(weight);
+    }
+    // convert kg to lb
+    else {
+      weightEl.value = lbToKg(weight);
+    }
   }
 })();

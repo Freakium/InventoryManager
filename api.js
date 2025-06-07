@@ -104,9 +104,11 @@ const api = (function () {
      * @param {*} quantity The quantity of the item
      * @param {*} date The item's scheduled date in ISO format
      * @param {*} price The optional price of the item
+     * @param {*} weight The optional weight of the item
+     * @param {*} weightUnit The weight unit
      * @returns operation status
      */
-    addItem: (id, name, type, colour, quantity, date, price) => {
+    addItem: (id, name, type, colour, quantity, date, price, weight, weightUnit) => {
       let items = getItemsFromLocalStorage();
       const index = items.findIndex(el => el.id === id);
       if (index !== -1) {
@@ -121,7 +123,9 @@ const api = (function () {
         colour,
         quantity,
         date,
-        price
+        price,
+        weight,
+        weightUnit
       });
 
       // update localStorage
@@ -139,9 +143,11 @@ const api = (function () {
      * @param {*} quantity The quantity of the item
      * @param {*} date The item's scheduled date in ISO format
      * @param {*} price The optional price of the item
+     * @param {*} weight The optional weight of the item
+     * @param {*} weightUnit The weight Unit
      * @returns operation status
      */
-    updateItem: (id, name, type, colour, quantity, date, price) => {
+    updateItem: (id, name, type, colour, quantity, date, price, weight, weightUnit) => {
       let items = getItemsFromLocalStorage();
       const index = items.findIndex(el => el.id === id);
       if (index === -1) {
@@ -156,7 +162,9 @@ const api = (function () {
         colour,
         quantity,
         date,
-        price
+        price,
+        weight,
+        weightUnit
       };
 
       // update localStorage
