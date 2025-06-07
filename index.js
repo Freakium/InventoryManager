@@ -170,11 +170,11 @@
     let id = Date.now();
 
     if (api.addItem(id, itemName, itemType, colour, quantity, itemDate, price, weight, weightUnit)) {
-      // calculate price and set up for display
-      let priceWeight = readyPriceWeightDisplay(price, weight, weightUnit);
+      // calculate total price of item
+      let totalPrice = weight ? calculateWeightedTotal(price, weight) : price;
 
       // Add item to item list
-      createItemCard(id, itemName, itemType, colour, quantity, itemDate, priceWeight.price, priceWeight.weightUnit);
+      createItemCard(id, itemName, itemType, colour, quantity, itemDate, totalPrice);
       appendAddItemButton();
       calculateTotal();
 
@@ -201,10 +201,10 @@
    */
   function dbUpdateItem(id, itemName, itemType, colour, quantity, itemDate, price, weight, weightUnit) {
     if (api.updateItem(id, itemName, itemType, colour, quantity, itemDate, price, weight, weightUnit)) {
-      // calculate price and set up for display
-      let priceWeight = readyPriceWeightDisplay(price, weight, weightUnit);
+      // calculate total price of item
+      let totalPrice = weight ? calculateWeightedTotal(price, weight) : price;
 
-      updateItemCard(id, itemName, itemType, colour, quantity, itemDate, priceWeight.price, priceWeight.weightUnit);
+      updateItemCard(id, itemName, itemType, colour, quantity, itemDate, totalPrice);
       calculateTotal();
 
       // UI items
@@ -266,10 +266,10 @@
     let total = 0;
 
     items.forEach((item) => {
-      // calculate price and set up for display
-      let priceWeight = readyPriceWeightDisplay(item.price, item.weight, item.weightUnit);
+      // calculate total price of item
+      let totalPrice = item.weight ? calculateWeightedTotal(item.price, item.weight) : item.price;
 
-      createItemCard(item.id, item.name, item.type, item.colour, item.quantity, item.date, priceWeight.price, priceWeight.weightUnit);
+      createItemCard(item.id, item.name, item.type, item.colour, item.quantity, item.date, totalPrice);
 
       // add to total
       let price = parseFloat(item.price);
@@ -328,15 +328,14 @@
    * @param {*} quantity The quantity of the item
    * @param {*} itemDate The item's set date in ISO format
    * @param {*} price The optional price of the item
-   * @param {*} weightUnit The optional weight unit
    */
-  function createItemCard(id, itemName, itemType, colour, quantity, itemDate, price, weightUnit) {
+  function createItemCard(id, itemName, itemType, colour, quantity, itemDate, price) {
     const date = new Date(itemDate);
     const dateTime = date.toLocaleString('en-US', {
       dateStyle: 'long',
       timeStyle: 'short'
     });
-    const priceWeight = currencyFormat(price ?? 0) + (weightUnit ?? '');
+    const totalPrice = currencyFormat(price ?? 0);
 
     document.getElementById('item-list').innerHTML +=
       `<div class="col" id="${id}">
@@ -352,7 +351,7 @@
             <div class="d-flex justify-content-between mb-3">
               <span class="badge bg-primary" id="${id}-itemType" title="Item Type">${itemType}</span>
               <span class="badge bg-success badge-price${price ? '' : ' d-none'}" id="${id}-itemPrice" data-price="${price ?? 0}" data-quantity="${quantity}" title="Item Price">
-                <span class="currency-symbol">${CURRENCY_SYMBOL}</span>${priceWeight}
+                <span class="currency-symbol">${CURRENCY_SYMBOL}</span>${totalPrice}
               </span>
             </div>
             <div class="form-floating shadow">
@@ -376,12 +375,11 @@
    * @param {*} quantity The quantity of the item
    * @param {*} itemDate The item's set date in ISO format
    * @param {*} price The optional price of the item
-   * @param {*} weightUnit The optional weight unit
    */
-  function updateItemCard(id, itemName, itemType, colour, quantity, itemDate, price, weightUnit) {
+  function updateItemCard(id, itemName, itemType, colour, quantity, itemDate, price) {
     const date = new Date(itemDate);
     const dateTime = date.toLocaleString();
-    const priceWeight = currencyFormat(price ?? 0) + (weightUnit ?? '');
+    const totalPrice = currencyFormat(price ?? 0);
 
     document.getElementById(`${id}-itemName`).innerHTML = itemName;
     document.getElementById(`${id}-itemType`).innerHTML = itemType;
@@ -392,7 +390,7 @@
     let priceEl = document.getElementById(`${id}-itemPrice`);
     priceEl.setAttribute('data-price', price);
     priceEl.setAttribute('data-quantity', quantity);
-    priceEl.innerHTML = `<span class="currency-symbol">${CURRENCY_SYMBOL}</span>${priceWeight}`;
+    priceEl.innerHTML = `<span class="currency-symbol">${CURRENCY_SYMBOL}</span>${totalPrice}`;
     price ? priceEl.classList.remove('d-none') : priceEl.classList.add('d-none');
 
     // set header colour
@@ -440,7 +438,7 @@
    */
   function kgToLb(kg) {
     const conversionFactor = 2.2046226218;
-    return (kg * conversionFactor).toFixed(2);
+    return (kg * conversionFactor).toFixed(4);
   }
 
   /**
@@ -450,7 +448,7 @@
    */
   function lbToKg(lb) {
     const conversionFactor = 0.45359237;
-    return (lb * conversionFactor).toFixed(2);
+    return (lb * conversionFactor).toFixed(4);
   }
 
   /**
@@ -461,27 +459,6 @@
    */
   function calculateWeightedTotal(price, weight) {
     return (price * weight).toFixed(2);
-  }
-
-  /**
-   * Sets up price and weight unit for display on the item card. Sets blank weight unit if no weight found.
-   * @param {*} price The price per weight
-   * @param {*} weight The item weight
-   * @param {*} weightUnit The weight unit
-   * @returns object with price and weight unit
-   */
-  function readyPriceWeightDisplay(price, weight, weightUnit) {
-    // calculate price and weight
-    let itemPrice = price;
-    let itemWeightUnit = weight ? `/${weightUnit}` : '';
-    if(weight) {
-      itemPrice = calculateWeightedTotal(itemPrice, weight);
-    }
-
-    return {
-      price: itemPrice,
-      weightUnit: itemWeightUnit
-    };
   }
 
   /*====================== DISPLAY FUNCTIONS =====================*/
