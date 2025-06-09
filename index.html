@@ -22,7 +22,7 @@
         <img src="img/favicon.ico" alt="Logo" height="24" class="d-inline-block align-text-top">
         <span class="mx-2">Inventory Manager</span>
       </div>
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+      <button class="navbar-toggler" id="navbarNavHamburger" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
         aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
@@ -137,7 +137,10 @@
   <div class="offcanvas offcanvas-end" tabindex="-1" id="itemForm" aria-labelledby="itemFormLabel">
     <div class="offcanvas-header" id="itemFormHeader">
       <h5 class="offcanvas-title" id="itemFormLabel"><span id="itemOperation">Add</span> Item</h5>
-      <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+      <div class="ms-auto d-flex align-items-center">
+        <a href="javascript:" title="Help" onclick="formHelp(event)"><i class="bi bi-question-lg fs-5"></i></a>
+        <a href="javascript:" class="ms-3" data-bs-dismiss="offcanvas" aria-label="Close"><i class="bi bi-x-lg fs-5"></i></a>
+      </div>
     </div>
     <div class="offcanvas-body">
       <form method="post" id="addUpdateForm" onsubmit="addOrUpdateItem(event)">
@@ -151,7 +154,7 @@
           <input class="form-control" id="itemType" name="itemType" placeholder="Item Type" autocomplete="off">
           <label for="itemType">Item Type</label>
         </div>
-        <div class="accordion mb-3" id="accordionOpt">
+        <div class="accordion" id="accordionOpt">
           <div class="accordion-item">
             <h2 class="accordion-header">
               <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOpt" aria-expanded="true" aria-controls="collapseOpt">
@@ -184,7 +187,7 @@
                     <input class="form-control" id="itemWeight" name="itemWeight" type="number" min="0" step="0.01" placeholder="Weight" autocomplete="off">
                     <label for="itemWeight">Weight</label>
                   </div>
-                  <button class="btn btn-secondary" id="itemWeightUnit" onclick="toggleWeightUnit(this, event)">kg</button>
+                  <button class="btn btn-outline-secondary" id="itemWeightUnit" onclick="toggleWeightUnit(this, event)">kg</button>
                 </div>
               </div>
             </div>
@@ -201,7 +204,7 @@
 
   <!-- DELETION MODAL -->
   <div class="modal" tabindex="-1" id="deleteModal" aria-modal="true" role="dialog">
-    <div class="modal-dialog ">
+    <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header text-white bg-danger">
           <h1 class="modal-title fs-5"><i class="bi bi-trash3 mx-2"></i>Delete Item</h1>
@@ -220,7 +223,7 @@
 
   <!-- CLEAR MODAL -->
   <div class="modal" tabindex="-1" id="clearModal" aria-modal="true" role="dialog">
-    <div class="modal-dialog ">
+    <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header text-white bg-danger">
           <h1 class="modal-title fs-5"><i class="bi bi-eraser-fill mx-2"></i>Clear Data</h1>
@@ -232,6 +235,51 @@
         </div>
         <div class="modal-footer d-flex justify-content-between py-1">
           <button type="button" class="btn btn-danger ms-auto" onclick="clearData()"><i class="bi bi-eraser-fill me-1"></i>Clear</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FORM HELP MODAL -->
+  <div class="modal" tabindex="-1" id="formHelpModal" aria-modal="true" role="dialog">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header text-white bg-primary">
+          <h1 class="modal-title fs-5"><i class="bi bi-info-circle mx-2"></i>Help</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <h5 class="text-primary">REQUIRED</h5>
+          <span>Item Name</span>
+          <ul>
+            <li>The name of the item.</li>
+          </ul>
+          <span>Item Type</span>
+          <ul>
+            <li>The type of the item.</li>
+          </ul>
+          <hr class="my-1">
+          <h5 class="text-primary">OPTIONAL</h5>
+          <span>Colour</span>
+          <ul>
+            <li>The colour of the item's header.</li>
+          </ul>
+          <span>Quantity</span>
+          <ul>
+            <li>The amount of items.</li>
+          </ul>
+          <span>Date</span>
+          <ul>
+            <li>The date the item was added.</li>
+          </ul>
+          <span>Price</span>
+          <ul>
+            <li>The price of the item.</li>
+          </ul>
+          <span>Weight</span>
+          <ul>
+            <li>The weight of the item. Weight unit can be toggled between kg and lb. Once weight is saved, the price will be calculated as price per one weight unit.</li>
+          </ul>
         </div>
       </div>
     </div>

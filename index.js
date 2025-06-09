@@ -92,7 +92,27 @@
     if(optional) {
       optional.show();
     }
-  })
+  });
+  
+  /**
+   * Closes navbar when user taps out of it on mobile.
+   */
+  document.getElementById('item-list').addEventListener('click', e => {
+    let status = document.getElementById('navbarNav').classList.contains('show');
+    if(status) {
+      document.getElementById('navbarNavHamburger').click();
+    }
+  });
+
+  /**
+   * While the form help modal is open, set focus accordingly.
+   */
+  document.getElementById('formHelpModal').addEventListener('shown.bs.modal', e => {
+    document.getElementById('formHelpModal').focus();
+  });
+  document.getElementById('formHelpModal').addEventListener('hidden.bs.modal', e => {
+    document.getElementById('itemForm').focus();
+  });
 
   /**
    * Listener to change currency symbol.
@@ -103,14 +123,14 @@
     // update currency symbol
     updateCurrencySymbol(selected);
     api.editCurrency(selected);
-  })
+  });
 
   /**
    * Listener to keep price input to two decimal places.
    */
   document.getElementById('itemPrice').addEventListener('change', e => {
     e.currentTarget.value = parseFloat(e.currentTarget.value).toFixed(2);
-  })
+  });
 
   /*======================= CRUD FUNCTIONS =======================*/
 
@@ -917,5 +937,15 @@
     else {
       weightEl.value = lbToKg(weight);
     }
+  }
+
+  /**
+   * Display the form help modal.
+   */
+  window.formHelp = (event) => {
+    event.preventDefault();
+
+    let modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('formHelpModal'));
+    modal.show();
   }
 })();
