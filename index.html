@@ -91,6 +91,11 @@
                 </div>
               </li>
               <li>
+                <button class="nav-link" role="button" title="Help" data-bs-toggle="modal" data-bs-target="#helpModal">
+                  <i class="bi bi-question-lg mx-2"></i>Help
+                </button>
+              </li>
+              <li>
                 <button class="nav-link" role="button" title="Clear Data" data-bs-toggle="modal" data-bs-target="#clearModal">
                   <i class="bi bi-eraser-fill mx-2"></i>Clear Data
                 </button>
@@ -111,9 +116,9 @@
   <!-- EXTRA SPACING -->
   <hr>
 
-  <!-- INVENTORY LIST -->
+  <!-- INVENTORY LIST NAME -->
   <div class="container mt-5">
-    <input class="form-control form-control-lg mb-3" id="inventoryTitle" onchange="setTitle(this)" value="Inventory" autocomplete="off">
+    <input class="form-control form-control-lg mb-3" id="inventoryTitle" onchange="setTitle(this)" value="Inventory" placeholder="Title" autocomplete="off">
     <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4 mb-5" id="item-list"></div>
     <a class="d-none" id="downloadLink"></a>
   </div>
@@ -240,8 +245,8 @@
     </div>
   </div>
 
-  <!-- FORM HELP MODAL -->
-  <div class="modal" tabindex="-1" id="formHelpModal" aria-modal="true" role="dialog">
+  <!-- HELP MODAL -->
+  <div class="modal" tabindex="-1" id="helpModal" aria-modal="true" role="dialog">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header text-white bg-primary">
@@ -249,34 +254,94 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-          <h5 class="text-primary">REQUIRED</h5>
-          <span>Item Name</span>
+          <h5 class="fw-bold">NAVBAR</h5>
+          <strong>File</strong>
           <ul>
-            <li>The name of the item.</li>
+            <li>Load File: Loads a previously saved inventory list. The default name is inventory.txt.</li>
+            <li>Save File: Saves the current inventory list to a file.</li>
           </ul>
-          <span>Item Type</span>
+          <strong>Sort</strong>
+          <ul>
+            <li>A list of sorting options are available. You can sort by Name, Type, Date, and Quantity.</li>
+          </ul>
+          <strong>Settings</strong>
+          <ul>
+            <li>Currency Symbol: Sets the currency symbol to be displayed on item cards and total price.</li>
+            <li>Help: Open this help page.</li>
+            <li>Clear Data: Clears all inventory data. A confirmation pop-up asks for final confirmation.</li>
+            <li>Light/Dark Mode: Switches between light and dark mode. Initial mode depends on your browser settings.</li>
+          </ul>
+          <hr>
+          <h5 class="fw-bold">INVENTORY PANEL</h5>
+          <strong>Title</strong>
+          <ul>
+            <li>The name of the inventory list. If left blank, it defaults to "Inventory".</li>
+          </ul>
+          <strong>Item Cards</strong>
+          <p class="mb-0">Once an item is added, it will be displayed as an item card. An item card displays the following:</p>
+          <ul>
+            <li>Name</li>
+            <li>Type</li>
+            <li>Price (if applicable)</li>
+            <li>Quantity</li>
+            <li>Date Created</li>
+          </ul>
+          <p class="mb-0">Item cards come with two options on the top-right:</p>
+          <ul>
+            <li><i class="bi bi-copy"></i> allows you to duplicate an item.</li>
+            <li><i class="bi bi-pencil-square"></i> allows you to edit an item.</li>
+          </ul>
+          <strong>Sorting</strong>
+          <p>The item cards can be sorted by dragging and dropping or by selecting from the list of sorting options in the Sort menu located on the navbar.</p>
+          <p>If you are on mobile and having issues scrolling through the inventory because it sorts instead, place your finger on an item's quantity box to scroll.</p>
+          <strong>Adding Items</strong>
+          <p>
+            To add a new item, you can either press the big square button with the <i class="bi bi-plus-square"></i> logo or the
+            <span class="bg-primary rounded-circle d-inline-block text-center" style="width:1.5em;"><i class="bi bi-plus text-white"></i></span>
+            button on the bottom-right.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FORM HELP MODAL -->
+  <div class="modal" tabindex="-1" id="formHelpModal" aria-modal="true" role="dialog">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header text-white bg-primary">
+          <h1 class="modal-title fs-5"><i class="bi bi-info-circle mx-2"></i>Form Help</h1>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <h5 class="fw-bold">REQUIRED</h5>
+          <strong>Item Name</strong>
+          <ul>
+            <li>The name of the item. Names are mutually exclusive.</li>
+          </ul>
+          <strong>Item Type</strong>
           <ul>
             <li>The type of the item.</li>
           </ul>
           <hr class="my-1">
-          <h5 class="text-primary">OPTIONAL</h5>
-          <span>Colour</span>
+          <h5 class="fw-bold">OPTIONAL</h5>
+          <strong>Colour</strong>
           <ul>
-            <li>The colour of the item's header.</li>
+            <li>The colour of the item's header. This defaults to black.</li>
           </ul>
-          <span>Quantity</span>
+          <strong>Quantity</strong>
           <ul>
-            <li>The amount of items.</li>
+            <li>The amount of items. This default to 1.</li>
           </ul>
-          <span>Date</span>
+          <strong>Date/Time</strong>
           <ul>
-            <li>The date the item was added.</li>
+            <li>The date and time the item was added. This defaults to current date and time.</li>
           </ul>
-          <span>Price</span>
+          <strong>Price</strong>
           <ul>
             <li>The price of the item.</li>
           </ul>
-          <span>Weight</span>
+          <strong>Weight</strong>
           <ul>
             <li>The weight of the item. Weight unit can be toggled between kg and lb. Once weight is saved, the price will be calculated as price per one weight unit.</li>
           </ul>
