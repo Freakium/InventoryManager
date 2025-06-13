@@ -526,8 +526,13 @@
    * @param {*} colour The designated colour
    */
   function formHeaderColour(colour) {
+    // set form header
     document.getElementById('itemFormHeader').classList.remove('bg-primary-subtle', 'bg-success-subtle', 'bg-warning-subtle');
     document.getElementById('itemFormHeader').classList.add(`bg-${colour}-subtle`);
+
+    // set optionals header
+    document.getElementById('optionalHeaderBtn').classList.remove('bg-primary-subtle', 'bg-success-subtle', 'bg-warning-subtle');
+    document.getElementById('optionalHeaderBtn').classList.add(`bg-${colour}-subtle`);
   }
 
   /**

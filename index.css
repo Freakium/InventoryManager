@@ -18,6 +18,10 @@
   border: var(--bs-border-width) solid var(--bs-border-color);
 }
 
+#optionalHeaderBtn {
+  color: var(--bs-heading-color);
+}
+
 #itemFormMessageArea {
   width: inherit;
   right: 0;
