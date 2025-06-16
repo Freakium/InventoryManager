@@ -68,7 +68,7 @@ input:invalid {
   border: 2px solid red;
 }
 fieldset:invalid + .formWarning {
-  display: block !important;
+  display: block;
 }
 .formWarning {
   display: none;
