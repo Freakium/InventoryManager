@@ -169,32 +169,45 @@
             </h2>
             <div id="collapseOpt" class="accordion-collapse collapse show" data-bs-parent="#accordionOpt">
               <div class="accordion-body">
-                <div class="form-floating mb-3">
+                <div class="form-floating">
                   <input class="form-control" id="itemColour" name="itemColour" type="color" autocomplete="off">
                   <label for="itemColour">Colour</label>
                 </div>
-                <div class="form-floating mb-3">
-                  <input class="form-control" id="itemQuantity" name="itemQuantity" type="number" min="0" placeholder="Quantity" autocomplete="off">
-                  <label for="itemQuantity">Quantity</label>
-                </div>
-                <div class="form-floating mb-3">
+
+                <fieldset class="mt-3">
+                  <div class="form-floating">
+                    <input class="form-control" id="itemQuantity" name="itemQuantity" type="number" min="0" placeholder="Quantity" autocomplete="off">
+                    <label for="itemQuantity">Quantity</label>
+                  </div>
+                </fieldset>
+                <span class="formWarning">Needs to be a whole number.</span>
+
+                <div class="form-floating mt-3">
                   <input class="form-control datepicker" id="itemDate" name="itemDate" placeholder="Date/Time" autocomplete="off">
                   <label for="itemDate">Date/Time</label>
                 </div>
-                <div class="input-group mb-3">
-                  <span class="input-group-text currency-symbol">$</span>
-                  <div class="form-floating">
-                    <input class="form-control" id="itemPrice" name="itemPrice" type="number" min="0" step="0.01" placeholder="Item Price" autocomplete="off">
-                    <label for="itemPrice">Price</label>
+                
+                <fieldset class="mt-3">
+                  <div class="input-group">
+                    <span class="input-group-text currency-symbol">$</span>
+                    <div class="form-floating">
+                      <input class="form-control" id="itemPrice" name="itemPrice" type="number" min="0" step="0.01" placeholder="Item Price" autocomplete="off">
+                      <label for="itemPrice">Price</label>
+                    </div>
                   </div>
-                </div>
-                <div class="input-group">
-                  <div class="form-floating">
-                    <input class="form-control" id="itemWeight" name="itemWeight" type="number" min="0" step="0.0001" placeholder="Weight" autocomplete="off">
-                    <label for="itemWeight">Weight</label>
+                </fieldset>
+                <span class="formWarning">Needs to be a number with at most 2 decimal places.</span>
+
+                <fieldset class="mt-3">
+                  <div class="input-group">
+                    <div class="form-floating">
+                      <input class="form-control" id="itemWeight" name="itemWeight" type="number" min="0" step="0.0001" placeholder="Weight" autocomplete="off">
+                      <label for="itemWeight">Weight</label>
+                    </div>
+                    <button class="btn btn-outline-secondary" id="itemWeightUnit" onclick="toggleWeightUnit(this, event)">kg</button>
                   </div>
-                  <button class="btn btn-outline-secondary" id="itemWeightUnit" onclick="toggleWeightUnit(this, event)">kg</button>
-                </div>
+                </fieldset>
+                <span class="formWarning">Needs to be a number with at most 4 decimal places.</span>
               </div>
             </div>
           </div>

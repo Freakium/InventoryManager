@@ -62,3 +62,15 @@
 #messageArea {
   right: 0;
 }
+
+/* custom form error message */
+input:invalid {
+  border: 2px solid red;
+}
+fieldset:invalid + .formWarning {
+  display: block !important;
+}
+.formWarning {
+  display: none;
+  color: red;
+}
