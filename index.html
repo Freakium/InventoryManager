@@ -119,6 +119,7 @@
   <!-- INVENTORY LIST NAME -->
   <div class="container mt-5">
     <input class="form-control form-control-lg mb-3" id="inventoryTitle" onchange="setTitle(this)" value="Inventory" placeholder="Title" autocomplete="off">
+    <div class="d-flex gap-2 mb-3" id="type-list"></div>
     <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4 mb-5" id="item-list"></div>
     <a class="d-none" id="downloadLink"></a>
   </div>
@@ -270,7 +271,10 @@
           </ul>
           <strong>Sort</strong>
           <ul>
-            <li>A list of sorting options are available. You can sort by Name, Type, Date, and Quantity.</li>
+            <li>
+              A list of sorting options are available. You can sort by Name, Type, Date, and Quantity.
+              Sorting will remove all item type filtering and display the full inventory.
+            </li>
           </ul>
           <strong>Settings</strong>
           <ul>
@@ -284,6 +288,13 @@
           <strong>Title</strong>
           <ul>
             <li>The name of the inventory list. If left blank, it defaults to "Inventory".</li>
+          </ul>
+          <strong>Item Type Filter</strong>
+          <ul>
+            <li>
+              A list of all item types are added to this filter. You can display any number of item types by clicking on the buttons to toggle the items belonging
+              to that type on or off. By default it is set to 'All'.
+            </li>
           </ul>
           <strong>Item Cards</strong>
           <p class="mb-0">Once an item is added, it will be displayed as an item card. An item card displays the following:</p>

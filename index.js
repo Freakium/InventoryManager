@@ -125,13 +125,6 @@
     api.editCurrency(selected);
   });
 
-  /**
-   * Listener to keep price input to two decimal places.
-   */
-  document.getElementById('itemPrice').addEventListener('change', e => {
-    e.currentTarget.value = parseFloat(e.currentTarget.value).toFixed(2);
-  });
-
   /*======================= CRUD FUNCTIONS =======================*/
 
   /**
@@ -146,7 +139,7 @@
       return;
     }
 
-    renderItems(items);
+    renderItems(items, true);
   }
 
   /**
@@ -198,6 +191,13 @@
       appendAddItemButton();
       calculateTotal();
 
+      // update type list
+      let currentItemsTypes = getCurrentItemTypes();
+      if(!currentItemsTypes.includes(itemType)) {
+        currentItemsTypes.push(itemType);
+        createTypeList(currentItemsTypes);
+      }
+
       // UI items
       itemFormCanvas.hide();
       alertMessage('messageArea', 'Item successfully added!', 'success', 3);
@@ -224,8 +224,16 @@
       // calculate total price of item
       let totalPrice = weight ? calculateWeightedTotal(price, weight) : price;
 
+      // update item card
       updateItemCard(id, itemName, itemType, colour, quantity, itemDate, totalPrice);
       calculateTotal();
+
+      // update type list
+      let currentItemsTypes = getCurrentItemTypes();
+      if(!currentItemsTypes.includes(itemType)) {
+        currentItemsTypes.push(itemType);
+        createTypeList(currentItemsTypes);
+      }
 
       // UI items
       itemFormCanvas.hide();
@@ -281,14 +289,25 @@
   /**
    * Renders all items as cards with an "Add Item" button appended to the end.
    * @param {*} items Array of items as JSON objects
+   * * @param {*} includeTypes Boolean for whether or not item types should be included
    */
-  function renderItems(items) {
+  function renderItems(items, includeTypes = false) {
     let total = 0;
+    let types = [];
+
+    // clear current item list
+    document.getElementById('item-list').innerHTML = '';
 
     items.forEach((item) => {
       // calculate total price of item
       let totalPrice = item.weight ? calculateWeightedTotal(item.price, item.weight) : item.price;
 
+      // add to types list
+      if(includeTypes && !types.includes(item.type)) {
+        types.push(item.type);
+      }
+
+      // create the item card
       createItemCard(item.id, item.name, item.type, item.colour, item.quantity, item.date, totalPrice);
 
       // add to total
@@ -298,6 +317,11 @@
         total += price * quantity;
       }
     });
+
+    // create types list
+    if(includeTypes) {
+      createTypeList(types);
+    }
 
     appendAddItemButton();
     displayTotal(total);
@@ -337,6 +361,138 @@
       document.getElementById('deleteItemBtn').setAttribute('onclick', `showDeleteModal(event, '${item.id}', '${item.name}', '${dateTime}');`);
       formHeaderColour('primary');
     }
+  }
+
+  /**
+   * Calculates the total price of all items and shows/hides the total price display.
+   * @param {*} newPrice New price to add to total
+   */
+  function calculateTotal(newPrice) {
+    let total = 0;
+
+    // fetch all prices from badge prices in DOM
+    document.querySelectorAll('.badge-price').forEach((el) => {
+      let price = parseFloat(el.getAttribute('data-price'));
+      let quantity = parseInt(el.getAttribute('data-quantity'));
+      if (!isNaN(price)) {
+        total += price * quantity;
+      }
+    });
+
+    // add new price to total
+    if (newPrice) {
+      total += newPrice;
+    }
+
+    displayTotal(total);
+  }
+
+  /**
+   * Gets title and items from localStorage and renders items on screen.
+   * @param {*} isFile Whether or not we are loading from an uploaded file
+   */
+  function loadFromStorage(isFile = false) {
+    dbFetchItems(isFile);
+    dbFetchTitle();
+    dbFetchCurrency();
+  }
+
+  /**
+   * Gets the current list of item type filter buttons.
+   * @returns The item type array
+   */
+  function getCurrentItemTypes() {
+    let typeList = [];
+    document.querySelectorAll('.typeListBtn').forEach((el) => {
+      typeList.push(el.innerHTML);
+    });
+    return typeList;
+  }
+
+  /**
+   * Converts kilograms to pounds.
+   * @param {*} kg The kilogram value
+   * @returns The pound value to two decimal places
+   */
+  function kgToLb(kg) {
+    const conversionFactor = 2.2046226218;
+    return (kg * conversionFactor).toFixed(4);
+  }
+
+  /**
+   * Converts pounds to kilograms.
+   * @param {*} kg The pound value
+   * @returns The kilogram value to two decimal places
+   */
+  function lbToKg(lb) {
+    const conversionFactor = 0.45359237;
+    return (lb * conversionFactor).toFixed(4);
+  }
+
+  /**
+   * Calculates the price of an item according to the price per weight and total weight of the item.
+   * @param {*} price The price of the item per weight
+   * @param {*} weight The total weight of the item
+   * @returns The price of the item
+   */
+  function calculateWeightedTotal(price, weight) {
+    return (price * weight).toFixed(2);
+  }
+
+  /*====================== DISPLAY FUNCTIONS =====================*/
+
+  /**
+   * Displays an alert message.
+   * @param {*} id id of the element
+   * @param {*} message message to display
+   * @param {*} colour bootstrap colour
+   * @param {*} timer time in seconds until automatic removal
+   * @returns 
+   */
+  function alertMessage(id, message, colour, timer) {
+    // error check
+    if (typeof message != 'string' || typeof id != 'string' || id.length == 0)
+      return;
+
+    // reset the message display area
+    if (message.length === 0) {
+      document.getElementById(id).innerHTML = '<br>';
+      return;
+    }
+
+    // set message
+    let icon = colour === 'success' ? 'bi bi-check-circle' : 'bi bi-exclamation-triangle';
+    let content =
+      `<div class="alert alert-${colour} alert-dismissible fade show d-flex shadow py-2" role="alert">
+        <i class="${icon} me-2"></i><span class="fw-bold mx-auto text-center">${message}</span>
+        <button type="button" class="btn-close pt-1" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>`;
+
+    // display alert
+    document.getElementById(id).innerHTML = content;
+
+    // add timer
+    if (timer) {
+      setTimeout(() => {
+        document.getElementById(id).innerHTML = "<br>";
+      }, parseInt(timer) * 1000);
+    }
+  }
+  
+  /**
+   * Creates a list of item type buttons for sorting the item list.
+   * @param {*} types The list of types
+   */
+  function createTypeList(types) {
+    // start with the 'All' button which is active by default
+    let typeList = '<button type="button" class="btn btn-sm btn-outline-primary active" id="typeListAllBtn" data-bs-toggle="button" onclick="typeFilter(this)">All</button>';
+
+    types.sort();
+    types.forEach((item) => {
+      typeList += `<button type="button" class="btn btn-sm btn-outline-primary typeListBtn" data-bs-toggle="button" onclick="typeFilter(this)">${item}</button>`;
+    });
+
+    document.getElementById('type-list').innerHTML = typeList;
   }
 
   /**
@@ -415,110 +571,6 @@
 
     // set header colour
     document.getElementById(`${id}-header`).style.backgroundColor = colour;
-  }
-
-  /**
-   * Calculates the total price of all items and shows/hides the total price display.
-   * @param {*} newPrice New price to add to total
-   */
-  function calculateTotal(newPrice) {
-    let total = 0;
-
-    // fetch all prices from badge prices in DOM
-    document.querySelectorAll('.badge-price').forEach((el) => {
-      let price = parseFloat(el.getAttribute('data-price'));
-      let quantity = parseInt(el.getAttribute('data-quantity'));
-      if (!isNaN(price)) {
-        total += price * quantity;
-      }
-    });
-
-    // add new price to total
-    if (newPrice) {
-      total += newPrice;
-    }
-
-    displayTotal(total);
-  }
-
-  /**
-   * Gets title and items from localStorage and renders items on screen.
-   * @param {*} isFile Whether or not we are loading from an uploaded file
-   */
-  function loadFromStorage(isFile = false) {
-    dbFetchItems(isFile);
-    dbFetchTitle();
-    dbFetchCurrency();
-  }
-
-  /**
-   * Converts kilograms to pounds.
-   * @param {*} kg The kilogram value
-   * @returns The pound value to two decimal places
-   */
-  function kgToLb(kg) {
-    const conversionFactor = 2.2046226218;
-    return (kg * conversionFactor).toFixed(4);
-  }
-
-  /**
-   * Converts pounds to kilograms.
-   * @param {*} kg The pound value
-   * @returns The kilogram value to two decimal places
-   */
-  function lbToKg(lb) {
-    const conversionFactor = 0.45359237;
-    return (lb * conversionFactor).toFixed(4);
-  }
-
-  /**
-   * Calculates the price of an item according to the price per weight and total weight of the item.
-   * @param {*} price The price of the item per weight
-   * @param {*} weight The total weight of the item
-   * @returns The price of the item
-   */
-  function calculateWeightedTotal(price, weight) {
-    return (price * weight).toFixed(2);
-  }
-
-  /*====================== DISPLAY FUNCTIONS =====================*/
-
-  /**
-   * Displays an alert message.
-   * @param {*} id id of the element
-   * @param {*} message message to display
-   * @param {*} colour bootstrap colour
-   * @param {*} timer time in seconds until automatic removal
-   * @returns 
-   */
-  function alertMessage(id, message, colour, timer) {
-    // error check
-    if (typeof message != 'string' || typeof id != 'string' || id.length == 0)
-      return;
-
-    // reset the message display area
-    if (message.length === 0) {
-      document.getElementById(id).innerHTML = '<br>';
-      return;
-    }
-
-    // set message
-    let icon = colour === 'success' ? 'bi bi-check-circle' : 'bi bi-exclamation-triangle';
-    let content =
-      `<div class="alert alert-${colour} alert-dismissible fade show d-flex shadow py-2" role="alert">
-        <i class="${icon} me-2"></i><span class="fw-bold mx-auto text-center">${message}</span>
-        <button type="button" class="btn-close pt-1" data-bs-dismiss="alert" aria-label="Close"></button>
-      </div>`;
-
-    // display alert
-    document.getElementById(id).innerHTML = content;
-
-    // add timer
-    if (timer) {
-      setTimeout(() => {
-        document.getElementById(id).innerHTML = "<br>";
-      }, parseInt(timer) * 1000);
-    }
   }
 
   /**
@@ -628,10 +680,9 @@
           let parseInput = JSON.parse(fileContent);
 
           if (parseInput.items) {
-            // reset UI elements and clear current inventory
+            // reset UI elements
             alertMessage('messageArea', '');
             itemFormCanvas.hide();
-            document.getElementById('item-list').innerHTML = '';
 
             // load file content
             api.loadInventory(parseInput);
@@ -688,6 +739,13 @@
       return;
     }
 
+    // remove all item type filters and set 'All' to active
+    document.querySelectorAll('.typeListBtn.active').forEach((typeEl) => {
+      typeEl.classList.remove('active');
+    });
+    document.getElementById('typeListAllBtn').classList.add('active');
+
+    // Begin sort
     let sortedItems;
     switch (mode) {
       // alphabet (dsc)
@@ -722,7 +780,6 @@
         sortedItems = api.sortItemsByName();
     }
 
-    document.getElementById('item-list').innerHTML = '';
     renderItems(sortedItems);
   },
 
@@ -742,6 +799,54 @@
       btn.innerHTML = `<i class="bi bi-brightness-high-fill mx-2"></i>Light Mode`;
     }
   },
+
+  /**
+   * Listener for the type list buttons to filter the item list. Active is on. Outline is off.
+   * @param {*} el The type list button element
+   */
+  window.typeFilter = (el) => {
+    const allBtn = document.getElementById('typeListAllBtn');
+    const elActive = el.classList.contains('active');
+
+    if(el.innerHTML === 'All') {
+      // display all items
+      if(elActive) {
+        let itemList = api.fetchItems();
+        renderItems(itemList);
+
+        // remove all active statuses from item types
+        document.querySelectorAll('.typeListBtn.active').forEach((typeEl) => {
+          typeEl.classList.remove('active');
+        });
+      }
+      // Pressing the All button when it is already active does nothing, keep it toggled on
+      else {
+        el.classList.add('active');
+      }
+    }
+    else {
+      const activeTypes = document.querySelectorAll('.typeListBtn.active');
+
+      // Toggle 'All' and show entire inventory
+      if(!activeTypes.length) {
+        let itemList = api.fetchItems();
+        renderItems(itemList);
+
+        allBtn.classList.add('active');
+      }
+      // Display selected types
+      else {
+        let typeList = [];
+        document.querySelectorAll('.typeListBtn.active').forEach((typeEl) => {
+          typeList.push(typeEl.innerHTML);
+        });
+        let itemList = api.fetchItemsByType(typeList);
+        renderItems(itemList);
+
+        allBtn.classList.remove('active');
+      }
+    }
+  }
 
   /**
    * Update title of inventory list.

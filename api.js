@@ -66,6 +66,16 @@ const api = (function () {
     },
 
     /**
+     * Fetches a list of items by type.
+     * @param {*} typeList The array of types
+     * @returns array of items as JSON objects
+     */
+    fetchItemsByType: (typeList) => {
+      const items = getItemsFromLocalStorage();
+      return items.filter(el => typeList.includes(el.type));
+    },
+
+    /**
      * Fetches the title of the inventory list.
      */
     fetchTitle: () => {
@@ -221,6 +231,7 @@ const api = (function () {
     sortItemsByName: (isDescending = false) => {
       let items = getItemsFromLocalStorage();
       items.sort((a, b) => isDescending ? b.name.localeCompare(a.name) : a.name.localeCompare(b.name) || a.type.localeCompare(b.type));
+      saveItemsToLocalStorage(items);
       return items;
     },
 
@@ -232,6 +243,7 @@ const api = (function () {
     sortItemsByType: (isDescending = false) => {
       let items = getItemsFromLocalStorage();
       items.sort((a, b) => isDescending ? b.type.localeCompare(a.type) : a.type.localeCompare(b.type) || a.name.localeCompare(b.name));
+      saveItemsToLocalStorage(items);
       return items;
     },
 
@@ -244,6 +256,7 @@ const api = (function () {
       let items = getItemsFromLocalStorage();
       items.sort((a, b) => isDescending ? new Date(b.date) - new Date(a.date) : new Date(a.date) - new Date(b.date) ||
         a.type.localeCompare(b.type) || a.name.localeCompare(b.name));
+      saveItemsToLocalStorage(items);
       return items;
     },
 
@@ -255,6 +268,7 @@ const api = (function () {
     sortItemsByQuantity: (isDescending = false) => {
       let items = getItemsFromLocalStorage();
       items.sort((a, b) => isDescending ? b.quantity - a.quantity : a.quantity - b.quantity || a.type.localeCompare(b.type) || a.name.localeCompare(b.name));
+      saveItemsToLocalStorage(items);
       return items;
     }
   }
