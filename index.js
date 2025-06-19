@@ -312,9 +312,12 @@
 
       // add to total
       let price = parseFloat(item.price);
+      let weight = parseFloat(item.weight);
       let quantity = parseInt(item.quantity);
       if (!isNaN(price)) {
-        total += price * quantity;
+        total += weight
+          ? price * weight * quantity
+          : price * quantity;
       }
     });
 
