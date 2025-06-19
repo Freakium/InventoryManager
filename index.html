@@ -22,10 +22,15 @@
         <img src="img/favicon.ico" alt="Logo" height="24" class="d-inline-block align-text-top">
         <span class="mx-2">Inventory Manager</span>
       </div>
-      <button class="navbar-toggler" id="navbarNavHamburger" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
-        aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-      </button>
+      <div class="d-flex ms-auto">
+        <button class="btn btn-outline-secondary me-2" id="scrollToTop" onclick="window.scrollTo({top:0, behavior:'smooth'})" title="Scroll To Top">
+          <i class="bi bi-arrow-up"></i>
+        </button>
+        <button class="navbar-toggler" id="navbarNavHamburger" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+          aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+      </div>
       <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav ms-auto">
           <li class="nav-item dropdown">
@@ -119,7 +124,7 @@
   <!-- INVENTORY LIST NAME -->
   <div class="container mt-5">
     <input class="form-control form-control-lg mb-3" id="inventoryTitle" onchange="setTitle(this)" value="Inventory" placeholder="Title" autocomplete="off">
-    <div class="d-flex gap-2 mb-3" id="type-list"></div>
+    <div class="d-flex flex-wrap gap-2 mb-3" id="type-list"></div>
     <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4 mb-5" id="item-list"></div>
     <a class="d-none" id="downloadLink"></a>
   </div>

@@ -78,6 +78,11 @@
     });
   });
 
+  window.addEventListener('scroll', e => {
+    const btn = document.getElementById('scrollToTop');
+    btn.style.display = window.scrollY > 20 ? 'block' : 'none';
+  });
+
   /**
    * During Add Item mode, focus on item name input once the offcanvas is completely open.
    */
