@@ -6,9 +6,6 @@
   // counts number of non-sort item drags before displaying help message
   let SORT_HELP_COUNTER = 4;
 
-  // the selected currency
-  let CURRENCY_SYMBOL = '$';
-
   /*========================== AUTORUN ===========================*/
 
   /**
@@ -94,17 +91,17 @@
 
     // always show the optionals
     let optional = bootstrap.Collapse.getInstance(document.getElementById('collapseOpt'));
-    if(optional) {
+    if (optional) {
       optional.show();
     }
   });
-  
+
   /**
    * Closes navbar when user taps out of it on mobile.
    */
   document.getElementById('item-list').addEventListener('click', e => {
     let status = document.getElementById('navbarNav').classList.contains('show');
-    if(status) {
+    if (status) {
       document.getElementById('navbarNavHamburger').click();
     }
   });
@@ -126,8 +123,8 @@
     const selected = e.target.value;
 
     // update currency symbol
-    updateCurrencySymbol(selected);
     api.editCurrency(selected);
+    updateCurrencySymbol(selected);
   });
 
   /*======================= CRUD FUNCTIONS =======================*/
@@ -189,7 +186,7 @@
 
     if (api.addItem(id, itemName, itemType, colour, quantity, itemDate, price, weight, weightUnit)) {
       // calculate total price of item
-      let totalPrice = weight ? calculateWeightedTotal(price, weight) : price;
+      let totalPrice = weight ? price * weight : price;
 
       // Add item to item list
       createItemCard(id, itemName, itemType, colour, quantity, itemDate, totalPrice);
@@ -198,7 +195,7 @@
 
       // update type list
       let currentItemsTypes = getCurrentItemTypes();
-      if(!currentItemsTypes.includes(itemType)) {
+      if (!currentItemsTypes.includes(itemType)) {
         currentItemsTypes.push(itemType);
         createTypeList(currentItemsTypes);
       }
@@ -227,7 +224,7 @@
   function dbUpdateItem(id, itemName, itemType, colour, quantity, itemDate, price, weight, weightUnit) {
     if (api.updateItem(id, itemName, itemType, colour, quantity, itemDate, price, weight, weightUnit)) {
       // calculate total price of item
-      let totalPrice = weight ? calculateWeightedTotal(price, weight) : price;
+      let totalPrice = weight ? price * weight : price;
 
       // update item card
       updateItemCard(id, itemName, itemType, colour, quantity, itemDate, totalPrice);
@@ -235,7 +232,7 @@
 
       // update type list
       let currentItemsTypes = getCurrentItemTypes();
-      if(!currentItemsTypes.includes(itemType)) {
+      if (!currentItemsTypes.includes(itemType)) {
         currentItemsTypes.push(itemType);
         createTypeList(currentItemsTypes);
       }
@@ -294,7 +291,7 @@
   /**
    * Renders all items as cards with an "Add Item" button appended to the end.
    * @param {*} items Array of items as JSON objects
-   * * @param {*} includeTypes Boolean for whether or not item types should be included
+   * @param {*} includeTypes Boolean for whether or not item types should be included
    */
   function renderItems(items, includeTypes = false) {
     let total = 0;
@@ -305,10 +302,10 @@
 
     items.forEach((item) => {
       // calculate total price of item
-      let totalPrice = item.weight ? calculateWeightedTotal(item.price, item.weight) : item.price;
+      let totalPrice = item.weight ? item.price * item.weight : item.price;
 
       // add to types list
-      if(includeTypes && !types.includes(item.type)) {
+      if (includeTypes && !types.includes(item.type)) {
         types.push(item.type);
       }
 
@@ -327,7 +324,7 @@
     });
 
     // create types list
-    if(includeTypes) {
+    if (includeTypes) {
       createTypeList(types);
     }
 
@@ -350,8 +347,8 @@
     document.getElementById('itemType').value = item.type;
     document.getElementById('itemColour').value = item.colour;
     document.getElementById('itemQuantity').value = item.quantity;
-    document.getElementById('itemPrice').value = item.price === 0 ? '' : parseFloat(item.price).toFixed(2);
-    document.getElementById('itemWeight').value = item.weight === 0 ? '' : parseFloat(item.weight).toFixed(4);
+    document.getElementById('itemPrice').value = item.price === 0 ? '' : parseFloat(item.price);
+    document.getElementById('itemWeight').value = item.weight === 0 ? '' : parseFloat(item.weight);
     document.getElementById('itemWeightUnit').innerHTML = item.weightUnit ?? 'kg';
 
     // parse date
@@ -437,16 +434,6 @@
     return (lb * conversionFactor).toFixed(4);
   }
 
-  /**
-   * Calculates the price of an item according to the price per weight and total weight of the item.
-   * @param {*} price The price of the item per weight
-   * @param {*} weight The total weight of the item
-   * @returns The price of the item
-   */
-  function calculateWeightedTotal(price, weight) {
-    return (price * weight).toFixed(2);
-  }
-
   /*====================== DISPLAY FUNCTIONS =====================*/
 
   /**
@@ -486,7 +473,7 @@
       }, parseInt(timer) * 1000);
     }
   }
-  
+
   /**
    * Creates a list of item type buttons for sorting the item list.
    * @param {*} types The list of types
@@ -519,14 +506,14 @@
       dateStyle: 'long',
       timeStyle: 'short'
     });
-    const totalPrice = currencyFormat(price ?? 0);
+    const totalPrice = `<span class="currency-display" data-price="${price}">${currencyFormat(price ?? 0)}</span>`;
 
     document.getElementById('item-list').innerHTML +=
       `<div class="col" id="${id}">
         <div class="card shadow h-100">
           <div class="card-header d-flex fw-bold text-white justify-content-between" id="${id}-header" style="background-color: ${colour}">
             <span class="d-flex align-items-center text-nowrap" id="${id}-itemName" title="Item Name">${itemName}</span>
-            <div>
+            <div class="d-flex">
               <button class="btn btn-sm btn-link" onclick="updateItemMode('${id}', true)" title="Duplicate"><i class="bi bi-copy"></i></button>
               <button class="btn btn-sm btn-link" onclick="updateItemMode('${id}')" title="Edit"><i class="bi bi-pencil-square"></i></button>
             </div>
@@ -535,7 +522,7 @@
             <div class="d-flex justify-content-between mb-3">
               <span class="badge bg-primary" id="${id}-itemType" title="Item Type">${itemType}</span>
               <span class="badge bg-success badge-price${price ? '' : ' d-none'}" id="${id}-itemPrice" data-price="${price ?? 0}" data-quantity="${quantity}" title="Item Price">
-                <span class="currency-symbol">${CURRENCY_SYMBOL}</span>${totalPrice}
+                ${totalPrice}
               </span>
             </div>
             <div class="form-floating shadow">
@@ -562,8 +549,11 @@
    */
   function updateItemCard(id, itemName, itemType, colour, quantity, itemDate, price) {
     const date = new Date(itemDate);
-    const dateTime = date.toLocaleString();
-    const totalPrice = currencyFormat(price ?? 0);
+    const dateTime = date.toLocaleString('en-US', {
+      dateStyle: 'long',
+      timeStyle: 'short'
+    });
+    const totalPrice = `<span class="currency-display" data-price="${price}">${currencyFormat(price ?? 0)}</span>`;
 
     document.getElementById(`${id}-itemName`).innerHTML = itemName;
     document.getElementById(`${id}-itemType`).innerHTML = itemType;
@@ -574,7 +564,7 @@
     let priceEl = document.getElementById(`${id}-itemPrice`);
     priceEl.setAttribute('data-price', price);
     priceEl.setAttribute('data-quantity', quantity);
-    priceEl.innerHTML = `<span class="currency-symbol">${CURRENCY_SYMBOL}</span>${totalPrice}`;
+    priceEl.innerHTML = `<span class="currency-display" data-price="${price}">${totalPrice}</span>`;
     price ? priceEl.classList.remove('d-none') : priceEl.classList.add('d-none');
 
     // set header colour
@@ -619,7 +609,7 @@
    */
   function displayTotal(total) {
     if (total) {
-      document.getElementById('totalAmount').innerHTML = `<span class="currency-symbol">${CURRENCY_SYMBOL}</span>${currencyFormat(total)}`;
+      document.getElementById('totalAmount').innerHTML = `<span class="currency-display" data-price="${total}">${currencyFormat(total)}</span>`;
       document.getElementById('totalArea').classList.remove('d-none');
     }
     else {
@@ -634,7 +624,33 @@
    * @returns The formatted US currency amount
    */
   function currencyFormat(price) {
-    return price.toLocaleString('en-US', { minimumFractionDigits: 2 });
+    const currencySymbol = api.fetchCurrency();
+    let country = '';
+    let currency = '';
+
+    switch (currencySymbol) {
+      case '$':
+        country = 'en-US';
+        currency = 'USD';
+        break;
+      case '€':
+        country = 'de-DE';
+        currency = 'EUR';
+        break;
+      case '£':
+        country = 'en-GB';
+        currency = 'GBP';
+        break;
+      case '¥':
+        country = 'ja-JP';
+        currency = 'JPY';
+        break;
+      case '₩':
+        country = 'ko-KR';
+        currency = 'KRW';
+    }
+
+    return price.toLocaleString(country, { style: 'currency', currency });
   }
 
   /**
@@ -642,9 +658,17 @@
    * @param {*} symbol The new currency symbol
    */
   function updateCurrencySymbol(symbol) {
-    // change all instances of currency symbol
-    document.querySelectorAll('.currency-symbol').forEach((el) => {
-      el.innerHTML = symbol;
+    // change symbol in item form
+    document.getElementById('currencySymbol').innerHTML = symbol;
+
+    // change currency format for all displayed prices
+    document.querySelectorAll('.currency-display').forEach(el => {
+      let price = parseFloat(el.getAttribute('data-price'));
+
+      if (!isNaN(price)) {
+        let newCurrency = currencyFormat(price);
+        el.innerHTML = newCurrency;
+      }
     });
   }
 
@@ -670,7 +694,7 @@
    */
   window.loadFileListener = () => {
     document.getElementById('fileInput').click();
-  },
+  }
 
   /**
    * Loads user uploaded database file.
@@ -711,7 +735,7 @@
     else {
       alertMessage('messageArea', 'File not found.', 'danger', 3);
     }
-  },
+  }
 
   /**
    * Save inventory as a text file.
@@ -739,7 +763,7 @@
     link.href = URL.createObjectURL(file);
     link.download = "inventory.txt";
     link.click();
-  },
+  }
 
   window.sortItems = (mode) => {
     if (!api.fetchItems().length) {
@@ -783,13 +807,21 @@
       case '7':
         sortedItems = api.sortItemsByQuantity(true);
         break;
+      // price (asc)
+      case '8':
+        sortedItems = api.sortItemsByPrice();
+        break;
+      // price (dsc)
+      case '9':
+        sortedItems = api.sortItemsByPrice(true);
+        break;
       // alphabet (asc)
       default:
         sortedItems = api.sortItemsByName();
     }
 
     renderItems(sortedItems);
-  },
+  }
 
   /**
    * Toggles the theme.
@@ -806,7 +838,7 @@
       html.setAttribute('data-bs-theme', 'dark');
       btn.innerHTML = `<i class="bi bi-brightness-high-fill mx-2"></i>Light Mode`;
     }
-  },
+  }
 
   /**
    * Listener for the type list buttons to filter the item list. Active is on. Outline is off.
@@ -816,9 +848,9 @@
     const allBtn = document.getElementById('typeListAllBtn');
     const elActive = el.classList.contains('active');
 
-    if(el.innerHTML === 'All') {
+    if (el.innerHTML === 'All') {
       // display all items
-      if(elActive) {
+      if (elActive) {
         let itemList = api.fetchItems();
         renderItems(itemList);
 
@@ -836,7 +868,7 @@
       const activeTypes = document.querySelectorAll('.typeListBtn.active');
 
       // Toggle 'All' and show entire inventory
-      if(!activeTypes.length) {
+      if (!activeTypes.length) {
         let itemList = api.fetchItems();
         renderItems(itemList);
 
@@ -986,7 +1018,7 @@
 
     // if blank price, default to 0
     parsePrice = itemPrice === '' ? 0 : parsePrice;
-    
+
     // if blank weight, default to 0
     parseWeight = itemWeight === '' ? 0 : parseWeight;
 
@@ -1039,16 +1071,16 @@
    */
   window.toggleWeightUnit = (el, event) => {
     event.preventDefault();
-    
+
     let currentUnit = el.innerHTML;
     let weightEl = document.getElementById('itemWeight');
     let weight = parseFloat(weightEl.value);
 
     el.innerHTML = el.innerHTML === 'kg' ? 'lb' : 'kg';
-    if(isNaN(weight)) return;
+    if (isNaN(weight)) return;
 
     // convert lb to kg
-    if(currentUnit === 'kg') {
+    if (currentUnit === 'kg') {
       weightEl.value = kgToLb(weight);
     }
     // convert kg to lb

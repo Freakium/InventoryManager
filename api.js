@@ -270,6 +270,21 @@ const api = (function () {
       items.sort((a, b) => isDescending ? b.quantity - a.quantity : a.quantity - b.quantity || a.type.localeCompare(b.type) || a.name.localeCompare(b.name));
       saveItemsToLocalStorage(items);
       return items;
+    },
+
+    /**
+     * Sort inventory by price first followed by type then by name.
+     * @param {*} isDescending Whether or not to sort descending
+     * @returns The sorted inventory
+     */
+    sortItemsByPrice: (isDescending = false) => {
+      let items = getItemsFromLocalStorage();
+      items.sort((a, b) => isDescending
+          ? ((b.price ?? 0) * (b.weight ? b.weight : 1)) - ((a.price ?? 0) * (a.weight ? a.weight : 1))
+          : ((a.price ?? 0) * (a.weight ? a.weight : 1)) - ((b.price ?? 0) * (b.weight ? b.weight : 1))
+        || a.type.localeCompare(b.type) || a.name.localeCompare(b.name));
+      saveItemsToLocalStorage(items);
+      return items;
     }
   }
 })();
