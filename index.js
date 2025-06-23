@@ -624,7 +624,7 @@
    * @returns The formatted US currency amount
    */
   function currencyFormat(price) {
-    const currencySymbol = api.fetchCurrency();
+    const currencySymbol = api.fetchCurrency() ?? '$';
     let country = '';
     let currency = '';
 
