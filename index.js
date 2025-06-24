@@ -127,6 +127,27 @@
     updateCurrencySymbol(selected);
   });
 
+  /**
+   * Listener for item quantity field to calculate total price of item(s).
+   */
+  document.getElementById('itemQuantity').addEventListener('change', e => {
+    calculateItemPrice();
+  });
+
+  /**
+   * Listener for item price field to calculate total price of item(s).
+   */
+  document.getElementById('itemPrice').addEventListener('change', e => {
+    calculateItemPrice();
+  });
+  
+  /**
+   * Listener for item weight field to calculate total price of item(s).
+   */
+  document.getElementById('itemWeight').addEventListener('change', e => {
+    calculateItemPrice();
+  });
+
   /*======================= CRUD FUNCTIONS =======================*/
 
   /**
@@ -355,6 +376,9 @@
     let date = new Date(item.date);
     let dateTime = date.toLocaleString();
     dtp.setDate(date);
+
+    // calculate total price
+    calculateItemPrice();
 
     if (isDuplicate) {
       document.getElementById('deleteItemBtn').classList.add('d-none');
@@ -672,6 +696,30 @@
     });
   }
 
+  /**
+   * Calculates the total item price using the price, weight, and quantity fields.
+   * @returns The total price of item(s)
+   */
+  function calculateItemPrice() {
+    let price = parseFloat(document.getElementById('itemPrice').value);
+    let weight = parseFloat(document.getElementById('itemWeight').value);
+    let quantity = parseInt(document.getElementById('itemQuantity').value);
+
+    let total = 0;
+    if(isNaN(price) || price <= 0) {
+      document.getElementById('itemPriceTotal').innerHTML = '';
+      return;
+    }
+    else if(isNaN(weight) || weight <= 0) {
+      total = price * (isNaN(quantity) || !quantity ? 1 : quantity);
+    }
+    else {
+      total = (price * weight) * (isNaN(quantity) || !quantity ? 1 : quantity);
+    }
+
+    document.getElementById('itemPriceTotal').innerHTML = `Total Price: ${currencyFormat(total)}`;
+  }
+
   /*====================== LISTENER FUNCTIONS ====================*/
 
   /**
@@ -915,6 +963,7 @@
     document.getElementById('itemPrice').value = "";
     document.getElementById('itemWeight').value = "";
     document.getElementById('itemWeightUnit').innerHTML = "kg";
+    document.getElementById('itemPriceTotal').innerHTML = "";
 
     // clear datepicker
     dtp.clear();
@@ -1087,6 +1136,9 @@
     else {
       weightEl.value = lbToKg(weight);
     }
+
+    // calculate total item price
+    calculateItemPrice();
   }
 
   /**
