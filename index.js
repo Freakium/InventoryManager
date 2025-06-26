@@ -216,10 +216,13 @@
 
       // update type list
       let currentItemsTypes = getCurrentItemTypes();
-      if (!currentItemsTypes.includes(itemType)) {
-        currentItemsTypes.push(itemType);
-        createTypeList(currentItemsTypes);
+      if (currentItemsTypes.hasOwnProperty(itemType)) {
+        currentItemsTypes[itemType]++;
       }
+      else {
+        currentItemsTypes[itemType] = 1;
+      }
+      createTypeList(currentItemsTypes);
 
       // UI items
       itemFormCanvas.hide();
@@ -243,6 +246,8 @@
    * @param {*} weightUnit The optional weight unit
    */
   function dbUpdateItem(id, itemName, itemType, colour, quantity, itemDate, price, weight, weightUnit) {
+    const oldType = document.getElementById(`${id}-itemType`).innerHTML;
+
     if (api.updateItem(id, itemName, itemType, colour, quantity, itemDate, price, weight, weightUnit)) {
       // calculate total price of item
       let totalPrice = weight ? price * weight : price;
@@ -252,9 +257,23 @@
       calculateTotal();
 
       // update type list
-      let currentItemsTypes = getCurrentItemTypes();
-      if (!currentItemsTypes.includes(itemType)) {
-        currentItemsTypes.push(itemType);
+      if(oldType !== itemType) {
+        // add to new type
+        let currentItemsTypes = getCurrentItemTypes();
+        if (currentItemsTypes.hasOwnProperty(itemType)) {
+          currentItemsTypes[itemType]++;
+        }
+        else {
+          currentItemsTypes[itemType] = 1;
+        }
+
+        // remove from old type
+        if(currentItemsTypes.hasOwnProperty(oldType)) {
+          currentItemsTypes[oldType]--;
+          if(currentItemsTypes[oldType] === 0) {
+            delete currentItemsTypes[oldType];
+          }
+        }
         createTypeList(currentItemsTypes);
       }
 
@@ -272,11 +291,21 @@
    * @param {*} id The id number of the item
    */
   function dbDeleteItem(id) {
-    let errorMsg = 'A problem occurred while deleting item. Please try again later.';
+    const itemType = document.getElementById(`${id}-itemType`).innerHTML;
 
     if (api.deleteItem(id)) {
       document.getElementById(`${id}`).remove();
       calculateTotal();
+
+      // update type list
+      let currentItemsTypes = getCurrentItemTypes();
+      if (currentItemsTypes.hasOwnProperty(itemType)) {
+        currentItemsTypes[itemType]--;
+        if(currentItemsTypes[itemType] === 0) {
+          delete currentItemsTypes[itemType];
+        }
+      }
+      createTypeList(currentItemsTypes);
 
       // hide modal and hide item form
       let modal = bootstrap.Modal.getInstance(document.getElementById('deleteModal'));
@@ -286,7 +315,7 @@
       alertMessage('messageArea', 'Item successfully deleted!', 'success', 3);
     }
     else {
-      alertMessage('deleteModalMessageArea', errorMsg, 'danger');
+      alertMessage('deleteModalMessageArea', 'A problem occurred while deleting item. Please try again later.', 'danger');
     }
   }
 
@@ -316,7 +345,7 @@
    */
   function renderItems(items, includeTypes = false) {
     let total = 0;
-    let types = [];
+    let types = {};
 
     // clear current item list
     document.getElementById('item-list').innerHTML = '';
@@ -326,8 +355,13 @@
       let totalPrice = item.weight ? item.price * item.weight : item.price;
 
       // add to types list
-      if (includeTypes && !types.includes(item.type)) {
-        types.push(item.type);
+      if (includeTypes) {
+        if(types.hasOwnProperty(item.type)) {
+          types[item.type]++;
+        }
+        else {
+          types[item.type] = 1;
+        }
       }
 
       // create the item card
@@ -431,9 +465,9 @@
    * @returns The item type array
    */
   function getCurrentItemTypes() {
-    let typeList = [];
+    let typeList = {};
     document.querySelectorAll('.typeListBtn').forEach((el) => {
-      typeList.push(el.innerHTML);
+      typeList[el.innerHTML] = parseInt(el.getAttribute('data-count'));
     });
     return typeList;
   }
@@ -500,15 +534,18 @@
 
   /**
    * Creates a list of item type buttons for sorting the item list.
-   * @param {*} types The list of types
+   * @param {*} types The JSON object of types
    */
   function createTypeList(types) {
     // start with the 'All' button which is active by default
     let typeList = '<button type="button" class="btn btn-sm btn-outline-primary active" id="typeListAllBtn" data-bs-toggle="button" onclick="typeFilter(this)">All</button>';
 
-    types.sort();
-    types.forEach((item) => {
-      typeList += `<button type="button" class="btn btn-sm btn-outline-primary typeListBtn" data-bs-toggle="button" onclick="typeFilter(this)">${item}</button>`;
+    let keys = Object.keys(types);
+    keys.sort();
+
+    keys.forEach((item) => {
+      typeList +=
+        `<button type="button" class="btn btn-sm btn-outline-primary typeListBtn" data-count="${types[item]}" data-bs-toggle="button" onclick="typeFilter(this)">${item}</button>`;
     });
 
     document.getElementById('type-list').innerHTML = typeList;
