@@ -140,7 +140,7 @@
   document.getElementById('itemPrice').addEventListener('change', e => {
     calculateItemPrice();
   });
-  
+
   /**
    * Listener for item weight field to calculate total price of item(s).
    */
@@ -215,14 +215,7 @@
       calculateTotal();
 
       // update type list
-      let currentItemsTypes = getCurrentItemTypes();
-      if (currentItemsTypes.hasOwnProperty(itemType)) {
-        currentItemsTypes[itemType]++;
-      }
-      else {
-        currentItemsTypes[itemType] = 1;
-      }
-      createTypeList(currentItemsTypes);
+      updateTypeList('add', itemType);
 
       // UI items
       itemFormCanvas.hide();
@@ -257,24 +250,8 @@
       calculateTotal();
 
       // update type list
-      if(oldType !== itemType) {
-        // add to new type
-        let currentItemsTypes = getCurrentItemTypes();
-        if (currentItemsTypes.hasOwnProperty(itemType)) {
-          currentItemsTypes[itemType]++;
-        }
-        else {
-          currentItemsTypes[itemType] = 1;
-        }
-
-        // remove from old type
-        if(currentItemsTypes.hasOwnProperty(oldType)) {
-          currentItemsTypes[oldType]--;
-          if(currentItemsTypes[oldType] === 0) {
-            delete currentItemsTypes[oldType];
-          }
-        }
-        createTypeList(currentItemsTypes);
+      if (oldType !== itemType) {
+        updateTypeList('update', itemType, oldType);
       }
 
       // UI items
@@ -298,14 +275,7 @@
       calculateTotal();
 
       // update type list
-      let currentItemsTypes = getCurrentItemTypes();
-      if (currentItemsTypes.hasOwnProperty(itemType)) {
-        currentItemsTypes[itemType]--;
-        if(currentItemsTypes[itemType] === 0) {
-          delete currentItemsTypes[itemType];
-        }
-      }
-      createTypeList(currentItemsTypes);
+      updateTypeList('delete', itemType);
 
       // hide modal and hide item form
       let modal = bootstrap.Modal.getInstance(document.getElementById('deleteModal'));
@@ -356,7 +326,7 @@
 
       // add to types list
       if (includeTypes) {
-        if(types.hasOwnProperty(item.type)) {
+        if (types.hasOwnProperty(item.type)) {
           types[item.type]++;
         }
         else {
@@ -380,7 +350,7 @@
 
     // create types list
     if (includeTypes) {
-      createTypeList(types);
+      createTypeList(types, 'All');
     }
 
     appendAddItemButton();
@@ -461,18 +431,6 @@
   }
 
   /**
-   * Gets the current list of item type filter buttons.
-   * @returns The item type array
-   */
-  function getCurrentItemTypes() {
-    let typeList = {};
-    document.querySelectorAll('.typeListBtn').forEach((el) => {
-      typeList[el.innerHTML] = parseInt(el.getAttribute('data-count'));
-    });
-    return typeList;
-  }
-
-  /**
    * Converts kilograms to pounds.
    * @param {*} kg The kilogram value
    * @returns The pound value to two decimal places
@@ -536,19 +494,78 @@
    * Creates a list of item type buttons for sorting the item list.
    * @param {*} types The JSON object of types
    */
-  function createTypeList(types) {
+  function createTypeList(types, active) {
     // start with the 'All' button which is active by default
-    let typeList = '<button type="button" class="btn btn-sm btn-outline-primary active" id="typeListAllBtn" data-bs-toggle="button" onclick="typeFilter(this)">All</button>';
+    let typeList =
+      `<button class="btn btn-sm btn-outline-primary" id="typeListBtn-All" data-bs-toggle="button" onclick="typeFilter(this)">All</button>`;
 
     let keys = Object.keys(types);
     keys.sort();
 
     keys.forEach((item) => {
       typeList +=
-        `<button type="button" class="btn btn-sm btn-outline-primary typeListBtn" data-count="${types[item]}" data-bs-toggle="button" onclick="typeFilter(this)">${item}</button>`;
+        `<button class="btn btn-sm btn-outline-primary typeListBtn" id="typeListBtn-${item}" data-count="${types[item]}" data-bs-toggle="button" onclick="typeFilter(this)">${item}</button>`;
     });
 
     document.getElementById('type-list').innerHTML = typeList;
+
+    // restore active status
+    let activeBtn = document.getElementById(`typeListBtn-${active}`);
+    if(activeBtn) {
+      activeBtn.click();
+    }
+    // if button not found, default to 'All'
+    else {
+      document.getElementById(`typeListBtn-All`).click();
+    }
+  }
+
+  /**
+   * Updates the type filter by adding/removing buttons.
+   * @param {*} mode A string for add/update/delete
+   * @param {*} itemType Contextual item type
+   * @param {*} oldType The previous item type used with 'update' mode
+   */
+  function updateTypeList(mode, itemType, oldType) {
+    let currentItemsTypes = {};
+    let activeType = '';
+
+    // compile list of current item types
+    document.querySelectorAll('.typeListBtn').forEach((el) => {
+      currentItemsTypes[el.innerHTML] = parseInt(el.getAttribute('data-count'));
+      
+      if (el.classList.contains('active')) {
+        activeType = el.innerHTML;
+      }
+    });
+
+    switch (mode) {
+      case 'delete':
+        if (currentItemsTypes.hasOwnProperty(itemType)) {
+          currentItemsTypes[itemType]--;
+          if (currentItemsTypes[itemType] === 0) {
+            delete currentItemsTypes[itemType];
+          }
+        }
+        break;
+      case 'update':
+        if (currentItemsTypes.hasOwnProperty(oldType)) {
+          currentItemsTypes[oldType]--;
+          if (currentItemsTypes[oldType] === 0) {
+            delete currentItemsTypes[oldType];
+          }
+        }
+      // update also needs to add type so no break
+      case 'add':
+        if (currentItemsTypes.hasOwnProperty(itemType)) {
+          currentItemsTypes[itemType]++;
+        }
+        else {
+          currentItemsTypes[itemType] = 1;
+        }
+    }
+
+    createTypeList(currentItemsTypes, activeType);
   }
 
   /**
@@ -743,11 +760,11 @@
     let quantity = parseInt(document.getElementById('itemQuantity').value);
 
     let total = 0;
-    if(isNaN(price) || price <= 0) {
+    if (isNaN(price) || price <= 0) {
       document.getElementById('itemPriceTotal').innerHTML = '';
       return;
     }
-    else if(isNaN(weight) || weight <= 0) {
+    else if (isNaN(weight) || weight <= 0) {
       total = price * (isNaN(quantity) || !quantity ? 1 : quantity);
     }
     else {
@@ -860,7 +877,7 @@
     document.querySelectorAll('.typeListBtn.active').forEach((typeEl) => {
       typeEl.classList.remove('active');
     });
-    document.getElementById('typeListAllBtn').classList.add('active');
+    document.getElementById('typeListBtn-All').classList.add('active');
 
     // Begin sort
     let sortedItems;
@@ -930,7 +947,7 @@
    * @param {*} el The type list button element
    */
   window.typeFilter = (el) => {
-    const allBtn = document.getElementById('typeListAllBtn');
+    const allBtn = document.getElementById('typeListBtn-All');
     const elActive = el.classList.contains('active');
 
     if (el.innerHTML === 'All') {
@@ -1155,9 +1172,7 @@
    * @param {*} el The button element
    * @param {*} event The HTML event
    */
-  window.toggleWeightUnit = (el, event) => {
-    event.preventDefault();
-
+  window.toggleWeightUnit = (el) => {
     let currentUnit = el.innerHTML;
     let weightEl = document.getElementById('itemWeight');
     let weight = parseFloat(weightEl.value);
