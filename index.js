@@ -496,22 +496,37 @@
    */
   function createTypeList(types, active) {
     // start with the 'All' button which is active by default
-    let typeList =
-      `<button class="btn btn-sm btn-outline-primary" id="typeListBtn-All" data-bs-toggle="button" onclick="typeFilter(this)">All</button>`;
+    let typeList = '';
+    let totalItems = 0;
 
     let keys = Object.keys(types);
     keys.sort();
 
+    // compile list of types
     keys.forEach((item) => {
+      totalItems += types[item];
       typeList +=
-        `<button class="btn btn-sm btn-outline-primary typeListBtn" id="typeListBtn-${item}" data-count="${types[item]}" data-bs-toggle="button" onclick="typeFilter(this)">${item}</button>`;
+        `<button class="btn btn-sm btn-outline-primary position-relative typeListBtn" id="typeListBtn-${item}" onclick="typeFilter(this)"
+            data-count="${types[item]}" data-name="${item}" data-bs-toggle="button">
+          ${item}
+          <span class="position-absolute top-0 start-50 translate-middle badge rounded-pill bg-secondary">${types[item]}</span>
+        </button>`;
     });
+
+    // add 'All' button
+    typeList =
+      `<button class="btn btn-sm btn-outline-primary position-relative" id="typeListBtn-All" data-bs-toggle="button" onclick="typeFilter(this)">
+        All
+        ${totalItems ? `<span class="position-absolute top-0 start-50 translate-middle badge rounded-pill bg-secondary">${totalItems}</span>` : ''}
+      </button>` + typeList;
+
+      console.log(totalItems);
 
     document.getElementById('type-list').innerHTML = typeList;
 
     // restore active status
     let activeBtn = document.getElementById(`typeListBtn-${active}`);
-    if(activeBtn) {
+    if (activeBtn) {
       activeBtn.click();
     }
     // if button not found, default to 'All'
@@ -532,10 +547,11 @@
 
     // compile list of current item types
     document.querySelectorAll('.typeListBtn').forEach((el) => {
-      currentItemsTypes[el.innerHTML] = parseInt(el.getAttribute('data-count'));
-      
+      let itemName = el.getAttribute('data-name');
+      currentItemsTypes[itemName] = parseInt(el.getAttribute('data-count'));
+
       if (el.classList.contains('active')) {
-        activeType = el.innerHTML;
+        activeType = itemName;
       }
     });
 
@@ -950,7 +966,7 @@
     const allBtn = document.getElementById('typeListBtn-All');
     const elActive = el.classList.contains('active');
 
-    if (el.innerHTML === 'All') {
+    if (el.getAttribute('data-name') === 'All') {
       // display all items
       if (elActive) {
         let itemList = api.fetchItems();
@@ -980,7 +996,7 @@
       else {
         let typeList = [];
         document.querySelectorAll('.typeListBtn.active').forEach((typeEl) => {
-          typeList.push(typeEl.innerHTML);
+          typeList.push(typeEl.getAttribute('data-name'));
         });
         let itemList = api.fetchItemsByType(typeList);
         renderItems(itemList);
