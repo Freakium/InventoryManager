@@ -509,7 +509,7 @@
         `<button class="btn btn-sm btn-outline-primary position-relative typeListBtn" id="typeListBtn-${item}" onclick="typeFilter(this)"
             data-count="${types[item]}" data-name="${item}" data-bs-toggle="button">
           ${item}
-          <span class="position-absolute top-0 start-50 translate-middle badge rounded-pill bg-secondary">${types[item]}</span>
+          <span class="position-absolute badge-number badge rounded-pill bg-secondary">${types[item]}</span>
         </button>`;
     });
 
@@ -517,7 +517,7 @@
     typeList =
       `<button class="btn btn-sm btn-outline-success position-relative" id="typeListBtn-All" data-bs-toggle="button" data-name="All" onclick="typeFilter(this)">
         All
-        ${totalItems ? `<span class="position-absolute top-0 start-50 translate-middle badge rounded-pill bg-secondary">${totalItems}</span>` : ''}
+        ${totalItems ? `<span class="position-absolute badge-number badge rounded-pill bg-secondary">${totalItems}</span>` : ''}
       </button>` + typeList;
 
     document.getElementById('type-list').innerHTML = typeList;

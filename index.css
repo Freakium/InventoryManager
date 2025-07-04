@@ -1,3 +1,7 @@
+.badge-number {
+  transform: translate(-30%,-40%);
+}
+
 .btn-link {
   color: #fff;
 }
