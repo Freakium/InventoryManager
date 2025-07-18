@@ -531,6 +531,9 @@
     else {
       document.getElementById(`typeListBtn-All`).click();
     }
+
+    // update type list autocomplete in item form
+    autocomplete(document.getElementById('itemType'), keys);
   }
 
   /**
