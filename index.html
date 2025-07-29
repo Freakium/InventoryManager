@@ -161,17 +161,17 @@
       </div>
     </div>
     <div class="offcanvas-body">
-      <form method="post" id="addUpdateForm" onsubmit="addOrUpdateItem(event)">
+      <form method="post" id="addUpdateForm" autocomplete="off" onsubmit="addOrUpdateItem(event)">
         <button class="d-none">REQUIRED FOR ENTER KEY</button>
         <input type="hidden" id="itemId">
 
         <div class="form-floating mb-3">
-          <input class="form-control" id="itemName" name="itemName" placeholder="Item Name" autocomplete="off">
+          <input class="form-control" id="itemName" name="itemName" placeholder="Item Name">
           <label for="itemName">Item Name</label>
         </div>
 
         <div class="form-floating mb-3">
-          <input class="form-control" id="itemType" name="itemType" placeholder="Item Type" autocomplete="off">
+          <input class="form-control" id="itemType" name="itemType" placeholder="Item Type">
           <label for="itemType">Item Type</label>
         </div>
 
@@ -187,25 +187,25 @@
             <div id="collapseOpt" class="accordion-collapse collapse show" data-bs-parent="#accordionOpt">
               <div class="accordion-body">
                 <div class="form-floating">
-                  <input class="form-control" id="itemColour" name="itemColour" type="color" autocomplete="off">
+                  <input class="form-control" id="itemColour" name="itemColour" type="color">
                   <label for="itemColour">Colour</label>
                 </div>
 
                 <fieldset class="form-floating mt-3">
-                  <input class="form-control" id="itemQuantity" name="itemQuantity" type="number" min="0" placeholder="Quantity" autocomplete="off">
+                  <input class="form-control" id="itemQuantity" name="itemQuantity" type="number" min="0" placeholder="Quantity">
                   <label for="itemQuantity">Quantity</label>
                 </fieldset>
                 <span class="formWarning">Needs to be a whole number.</span>
 
                 <div class="form-floating mt-3">
-                  <input class="form-control datepicker" id="itemDate" name="itemDate" placeholder="Date/Time" autocomplete="off">
+                  <input class="form-control datepicker" id="itemDate" name="itemDate" placeholder="Date/Time">
                   <label for="itemDate">Date/Time</label>
                 </div>
                 
                 <fieldset class="input-group mt-3">
                   <span class="input-group-text" id="currencySymbol">$</span>
                   <div class="form-floating">
-                    <input class="form-control" id="itemPrice" name="itemPrice" type="number" min="0" step="0.01" placeholder="Item Price" autocomplete="off">
+                    <input class="form-control" id="itemPrice" name="itemPrice" type="number" min="0" step="0.01" placeholder="Item Price">
                     <label for="itemPrice">Price</label>
                   </div>
                 </fieldset>
@@ -213,7 +213,7 @@
 
                 <fieldset class="input-group mt-3">
                   <div class="form-floating">
-                    <input class="form-control" id="itemWeight" name="itemWeight" type="number" min="0" step="0.0001" placeholder="Weight" autocomplete="off">
+                    <input class="form-control" id="itemWeight" name="itemWeight" type="number" min="0" step="0.0001" placeholder="Weight">
                     <label for="itemWeight">Weight</label>
                   </div>
                   <button class="btn btn-outline-secondary" id="itemWeightUnit" type="button" onclick="toggleWeightUnit(this)">kg</button>
