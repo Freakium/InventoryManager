@@ -372,7 +372,7 @@
     document.getElementById('itemType').value = item.type;
     document.getElementById('itemColour').value = item.colour;
     document.getElementById('itemQuantity').value = item.quantity;
-    document.getElementById('itemPrice').value = item.price === 0 ? '' : parseFloat(item.price);
+    document.getElementById('itemPrice').value = item.price === 0 ? '' : parseFloat(item.price).toFixed(2);
     document.getElementById('itemWeight').value = item.weight === 0 ? '' : parseFloat(item.weight);
     document.getElementById('itemWeightUnit').innerHTML = item.weightUnit ?? 'kg';
 
