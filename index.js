@@ -743,6 +743,10 @@
       case '₩':
         country = 'ko-KR';
         currency = 'KRW';
+        break;
+      case '₹':
+        country = 'en-IN';
+        currency = 'INR';
     }
 
     return price.toLocaleString(country, { style: 'currency', currency });
