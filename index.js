@@ -391,7 +391,7 @@
     }
     else {
       document.getElementById('deleteItemBtn').classList.remove('d-none');
-      document.getElementById('deleteItemBtn').setAttribute('onclick', `showDeleteModal(event, '${item.id}', '${item.name}', '${dateTime}');`);
+      document.getElementById('deleteItemBtn').setAttribute('onclick', `showDeleteModal(event, \`${item.id}\`, \`${item.name}\`, \`${dateTime}\`);`);
       formHeaderColour('primary');
     }
   }
