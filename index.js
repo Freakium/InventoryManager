@@ -4,7 +4,8 @@
   const itemFormCanvas = new bootstrap.Offcanvas('#itemForm');
 
   // counts number of non-sort item drags before displaying help message
-  let SORT_HELP_COUNTER = 4;
+  let SORT_HELP_TIMER;
+  let SORT_HELP_COUNTER = 0;
 
   /*========================== AUTORUN ===========================*/
 
@@ -47,25 +48,23 @@
           // get item's current index
           let sortIndex = [...document.getElementById('item-list').querySelectorAll('.col')].indexOf(selected);
 
-          // item position unchanged
-          if (sortIndex === curIndex) {
-            if (!SORT_HELP_COUNTER) {
-              alertMessage('messageArea', "If you are having issues scrolling on mobile, place your finger on an item's quantity box to scroll the page.", 'warning', 8);
-              SORT_HELP_COUNTER = 4;
-            }
-            else {
-              SORT_HELP_COUNTER--;
-            }
-          }
-          // item position changed
-          else {
-            // update item position
-            let item = itemList.splice(curIndex, 1)[0];
-            itemList.splice(sortIndex, 0, item);
-            api.updateItems(itemList);
+          // update item position
+          let item = itemList.splice(curIndex, 1)[0];
+          itemList.splice(sortIndex, 0, item);
+          api.updateItems(itemList);
 
-            // reset SORT_HELP_COUNTER
-            SORT_HELP_COUNTER = 4;
+          // log # of sorts within a second
+          SORT_HELP_COUNTER++;
+          if(!SORT_HELP_TIMER) {
+            SORT_HELP_TIMER = setTimeout(() => {
+              SORT_HELP_COUNTER = 0;
+              SORT_HELP_TIMER = null;
+            }, 1000);
+          }
+          
+          // if 5 quick sorts in a second, display help message
+          if(SORT_HELP_COUNTER >= 3) {
+            alertMessage('messageArea', "If you are having issues scrolling on mobile, place your finger on an item's quantity box to scroll the page.", 'warning', 8);
           }
         }
         else {
