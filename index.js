@@ -619,9 +619,17 @@
                 ${totalPrice}
               </span>
             </div>
-            <div class="form-floating shadow">
-              <input class="form-control" id="${id}-quantity" value="${quantity}" title="Quantity" disabled>
-              <label for="floatingInput">Quantity</label>
+            <div class="row gx-2">
+              <div class="form-floating shadow col">
+                <input class="form-control" id="${id}-quantity" value="${quantity}" title="Quantity" disabled>
+                <label for="${id}-quantity">Quantity</label>
+              </div>
+              ${quantity > 1 && price ?
+              `<div class="form-floating shadow col">
+                <input class="form-control" id="${id}-totalPrice" value="${currencyFormat(price * quantity ?? 0)}" title="Quantity" disabled>
+                <label for="${id}-totalPrice">Total Price</label>
+              </div>`
+              : ''}
             </div>
           </div>
           <div class="card-footer">
