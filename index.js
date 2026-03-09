@@ -624,12 +624,10 @@
                 <input class="form-control" id="${id}-quantity" value="${quantity}" title="Quantity" disabled>
                 <label for="${id}-quantity">Quantity</label>
               </div>
-              ${quantity > 1 && price ?
-              `<div class="form-floating shadow col">
+              <div class="form-floating shadow col ${quantity > 1 && price ? '' : 'd-none'}">
                 <input class="form-control" id="${id}-totalPrice" value="${currencyFormat(price * quantity ?? 0)}" title="Quantity" disabled>
                 <label for="${id}-totalPrice">Total Price</label>
-              </div>`
-              : ''}
+              </div>
             </div>
           </div>
           <div class="card-footer">
@@ -668,6 +666,16 @@
     priceEl.setAttribute('data-quantity', quantity);
     priceEl.innerHTML = `<span class="currency-display" data-price="${price}">${totalPrice}</span>`;
     price ? priceEl.classList.remove('d-none') : priceEl.classList.add('d-none');
+
+    // show/hide the total price display
+    let tp = document.getElementById(`${id}-totalPrice`);
+    if(quantity > 1 && price) {
+      tp.value = currencyFormat(price * quantity);
+      tp.parentElement.classList.remove('d-none');
+    }
+    else {
+      tp.parentElement.classList.add('d-none');
+    }
 
     // set header colour
     document.getElementById(`${id}-header`).style.backgroundColor = colour;
