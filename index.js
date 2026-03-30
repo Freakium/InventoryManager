@@ -33,7 +33,7 @@
 
     // Set up draggable item sorting
     $('#item-list').sortable({
-      items: `.col:not('#addItemBtn')`,
+      items: `.col:not('.form-floating, #addItemBtn')`,
       opacity: 0.8,
       placeholder: 'sortable-placeholder',
       tolerance: 'pointer',
