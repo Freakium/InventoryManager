@@ -33,6 +33,8 @@
 
     // Set up draggable item sorting
     $('#item-list').sortable({
+      containment: "parent",
+      handle: '.card-header',
       items: `.col:not('.form-floating, #addItemBtn')`,
       opacity: 0.8,
       placeholder: 'sortable-placeholder',
@@ -46,7 +48,7 @@
         let curIndex = itemList.findIndex(el => el.id.toString() === selectedId);
         if (curIndex > -1) {
           // get item's current index
-          let sortIndex = [...document.getElementById('item-list').querySelectorAll('.col')].indexOf(selected);
+          let sortIndex = [...document.getElementById('item-list').querySelectorAll('.item-header')].indexOf(selected);
 
           // update item position
           let item = itemList.splice(curIndex, 1)[0];
@@ -64,7 +66,7 @@
           
           // if 5 quick sorts in a second, display help message
           if(SORT_HELP_COUNTER >= 3) {
-            alertMessage('messageArea', "If you are having issues scrolling on mobile, place your finger on an item's quantity box to scroll the page.", 'warning', 8);
+            alertMessage('messageArea', "If you are having issues scrolling on mobile, do not place your finger on item headers as that is used for sorting.", 'warning', 8);
           }
         }
         else {
@@ -603,7 +605,7 @@
     const totalPrice = `<span class="currency-display" data-price="${price}">${currencyFormat(price ?? 0)}</span>`;
 
     document.getElementById('item-list').innerHTML +=
-      `<div class="col" id="${id}">
+      `<div class="item-header col" id="${id}">
         <div class="card shadow h-100">
           <div class="card-header d-flex fw-bold text-white justify-content-between" id="${id}-header" style="background-color: ${colour}">
             <span class="d-flex align-items-center text-nowrap" id="${id}-itemName" title="Item Name">${itemName}</span>
