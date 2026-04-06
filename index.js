@@ -608,7 +608,7 @@
       `<div class="item-header col" id="${id}">
         <div class="card shadow h-100">
           <div class="card-header d-flex flex-wrap fw-bold text-white" id="${id}-header" style="background-color: ${colour}">
-            <span class="d-flex align-items-center text-nowrap" id="${id}-itemName" title="Item Name">${itemName}</span>
+            <span class="d-flex align-items-center" id="${id}-itemName" title="Item Name">${itemName}</span>
             <div class="d-flex ms-auto">
               <button class="btn btn-sm btn-link" onclick="updateItemMode('${id}', true)" title="Duplicate"><i class="bi bi-copy"></i></button>
               <button class="btn btn-sm btn-link" onclick="updateItemMode('${id}')" title="Edit"><i class="bi bi-pencil-square"></i></button>
