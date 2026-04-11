@@ -1,11 +1,17 @@
 (function () {
 
   // off canvas element for CRUD form
-  const itemFormCanvas = new bootstrap.Offcanvas('#itemForm');
+  const ITEM_FORM_CANVAS = new bootstrap.Offcanvas('#itemForm');
 
   // counts number of non-sort item drags before displaying help message
   let SORT_HELP_TIMER;
   let SORT_HELP_COUNTER = 0;
+
+  // keeps the current item type list before changes
+  let OLD_ITEM_TYPES;
+
+  // keeps the total item count
+  let ITEM_COUNT = 0;
 
   /*========================== AUTORUN ===========================*/
 
@@ -163,6 +169,9 @@
       return;
     }
 
+    // update global item count
+    ITEM_COUNT = items.length;
+
     renderItems(items, true);
   }
 
@@ -183,7 +192,7 @@
 
       populateItemFields(item, isDuplicate);
       alertMessage('itemFormMessageArea', '');
-      itemFormCanvas.show();
+      ITEM_FORM_CANVAS.show();
     }
     else {
       console.error(id, api.fetchItems());
@@ -194,7 +203,7 @@
   /**
    * Call api to add a item.
    * @param {*} itemName Name of the item
-   * @param {*} itemType The type of item
+   * @param {*} itemType The type list of item
    * @param {*} colour The colour of the item (shown on header)
    * @param {*} quantity The quantity of the item
    * @param {*} itemDate The item's set date in ISO format
@@ -216,10 +225,11 @@
       calculateTotal();
 
       // update type list
+      ITEM_COUNT++;
       updateTypeList('add', itemType);
 
       // UI items
-      itemFormCanvas.hide();
+      ITEM_FORM_CANVAS.hide();
       alertMessage('messageArea', 'Item successfully added!', 'success', 3);
     }
     else {
@@ -231,7 +241,7 @@
    * Call api to update a item.
    * @param {*} id The id number of the item
    * @param {*} itemName Name of the item
-   * @param {*} itemType The type of item
+   * @param {*} itemType The type list of item
    * @param {*} colour The colour of the item (shown on header)
    * @param {*} quantity The quantity of the item
    * @param {*} itemDate The item's set date in ISO format
@@ -240,8 +250,6 @@
    * @param {*} weightUnit The optional weight unit
    */
   function dbUpdateItem(id, itemName, itemType, colour, quantity, itemDate, price, weight, weightUnit) {
-    const oldType = document.getElementById(`${id}-itemType`).innerHTML;
-
     if (api.updateItem(id, itemName, itemType, colour, quantity, itemDate, price, weight, weightUnit)) {
       // calculate total price of item
       let totalPrice = weight ? price * weight : price;
@@ -251,12 +259,12 @@
       calculateTotal();
 
       // update type list
-      if (oldType !== itemType) {
-        updateTypeList('update', itemType, oldType);
+      if (OLD_ITEM_TYPES.slice().sort().join(',') !== itemType.slice().sort().join(',')) {
+        updateTypeList('update', itemType);
       }
 
       // UI items
-      itemFormCanvas.hide();
+      ITEM_FORM_CANVAS.hide();
       alertMessage('messageArea', 'Item successfully updated!', 'success', 3);
     }
     else {
@@ -269,19 +277,18 @@
    * @param {*} id The id number of the item
    */
   function dbDeleteItem(id) {
-    const itemType = document.getElementById(`${id}-itemType`).innerHTML;
-
     if (api.deleteItem(id)) {
       document.getElementById(`${id}`).remove();
       calculateTotal();
 
       // update type list
-      updateTypeList('delete', itemType);
+      ITEM_COUNT--;
+      updateTypeList('delete');
 
       // hide modal and hide item form
       let modal = bootstrap.Modal.getInstance(document.getElementById('deleteModal'));
       modal.hide();
-      itemFormCanvas.hide();
+      ITEM_FORM_CANVAS.hide();
 
       alertMessage('messageArea', 'Item successfully deleted!', 'success', 3);
     }
@@ -327,12 +334,14 @@
 
       // add to types list
       if (includeTypes) {
-        if (types.hasOwnProperty(item.type)) {
-          types[item.type]++;
-        }
-        else {
-          types[item.type] = 1;
-        }
+        item.type.forEach(type => {
+          if (types.hasOwnProperty(type)) {
+            types[type]++;
+          }
+          else {
+            types[type] = 1;
+          }
+        });
       }
 
       // create the item card
@@ -370,12 +379,22 @@
     // populate inputs
     document.getElementById('itemId').value = item.id;
     document.getElementById('itemName').value = item.name;
-    document.getElementById('itemType').value = item.type;
     document.getElementById('itemColour').value = item.colour;
     document.getElementById('itemQuantity').value = item.quantity;
     document.getElementById('itemPrice').value = item.price === 0 ? '' : parseFloat(item.price).toFixed(2);
     document.getElementById('itemWeight').value = item.weight === 0 ? '' : parseFloat(item.weight);
     document.getElementById('itemWeightUnit').innerHTML = item.weightUnit ?? 'kg';
+
+    // clear item type input field
+    let itemTypes = document.getElementById('itemType');
+    itemTypes.innerHTML = '';
+    
+    // populate item type list
+    OLD_ITEM_TYPES = item.type;
+    document.getElementById('itemTypeList').innerHTML = "";
+    item.type.forEach(type => {
+      itemTypes.innerHTML += displayItemTypeModifier(type);
+    });
 
     // parse date
     let date = new Date(item.date);
@@ -518,7 +537,7 @@
     typeList =
       `<button class="btn btn-sm btn-outline-success position-relative" id="typeListBtn-All" data-bs-toggle="button" data-name="All" onclick="typeFilter(this)">
         All
-        ${totalItems ? `<span class="position-absolute badge-number badge rounded-pill bg-success-subtle text-light-emphasis">${totalItems}</span>` : ''}
+        ${totalItems ? `<span class="position-absolute badge-number badge rounded-pill bg-success-subtle text-light-emphasis">${ITEM_COUNT}</span>` : ''}
       </button>` + typeList;
 
     document.getElementById('type-list').innerHTML = typeList;
@@ -540,10 +559,9 @@
   /**
    * Updates the type filter by adding/removing buttons.
    * @param {*} mode A string for add/update/delete
-   * @param {*} itemType Contextual item type
-   * @param {*} oldType The previous item type used with 'update' mode
+   * @param {*} itemType The item type list
    */
-  function updateTypeList(mode, itemType, oldType) {
+  function updateTypeList(mode, itemType) {
     let currentItemsTypes = {};
     let activeType = '';
 
@@ -559,28 +577,34 @@
 
     switch (mode) {
       case 'delete':
-        if (currentItemsTypes.hasOwnProperty(itemType)) {
-          currentItemsTypes[itemType]--;
-          if (currentItemsTypes[itemType] === 0) {
-            delete currentItemsTypes[itemType];
+        OLD_ITEM_TYPES.forEach(type => {
+          if (currentItemsTypes.hasOwnProperty(type)) {
+            currentItemsTypes[type]--;
+            if (currentItemsTypes[type] === 0) {
+              delete currentItemsTypes[type];
+            }
           }
-        }
+        });
         break;
       case 'update':
-        if (currentItemsTypes.hasOwnProperty(oldType)) {
-          currentItemsTypes[oldType]--;
-          if (currentItemsTypes[oldType] === 0) {
-            delete currentItemsTypes[oldType];
+        OLD_ITEM_TYPES.forEach(type => {
+          if (currentItemsTypes.hasOwnProperty(type)) {
+            currentItemsTypes[type]--;
+            if (currentItemsTypes[type] === 0) {
+              delete currentItemsTypes[type];
+            }
           }
-        }
+        });
       // update also needs to add type so no break
       case 'add':
-        if (currentItemsTypes.hasOwnProperty(itemType)) {
-          currentItemsTypes[itemType]++;
-        }
-        else {
-          currentItemsTypes[itemType] = 1;
-        }
+        itemType.forEach(type => {
+          if (currentItemsTypes.hasOwnProperty(type)) {
+            currentItemsTypes[type]++;
+          }
+          else {
+            currentItemsTypes[type] = 1;
+          }
+        });
     }
 
     createTypeList(currentItemsTypes, activeType);
@@ -590,7 +614,7 @@
    * Adds a single item card to the item list.
    * @param {*} id The id number of the new item
    * @param {*} itemName Name of the item
-   * @param {*} itemType The type of item
+   * @param {*} itemType The type list of item
    * @param {*} colour The colour of the item (shown on header)
    * @param {*} quantity The quantity of the item
    * @param {*} itemDate The item's set date in ISO format
@@ -604,6 +628,12 @@
     });
     const totalPrice = `<span class="currency-display" data-price="${price}">${currencyFormat(price ?? 0)}</span>`;
 
+    // compile item types list
+    let itemTypeList = "";
+    itemType.forEach(type => {
+      itemTypeList += `<span class="badge bg-primary" title="Item Type">${type}</span>`;
+    });
+
     document.getElementById('item-list').innerHTML +=
       `<div class="item-header col" id="${id}">
         <div class="card shadow h-100">
@@ -615,11 +645,15 @@
             </div>
           </div>
           <div class="card-body bg-secondary-subtle">
-            <div class="d-flex justify-content-between mb-3">
-              <span class="badge bg-primary" id="${id}-itemType" title="Item Type">${itemType}</span>
-              <span class="badge bg-success badge-price${price ? '' : ' d-none'}" id="${id}-itemPrice" data-price="${price ?? 0}" data-quantity="${quantity}" title="Item Price">
-                ${totalPrice}
-              </span>
+            <div class="d-flex mb-3">
+              <div class="d-flex flex-wrap gap-1" id="${id}-itemType">
+                ${itemTypeList}
+              </div>
+              <div class="d-flex align-items-start ms-auto">
+                <span class="badge bg-success badge-price${price ? '' : ' d-none'}" id="${id}-itemPrice" data-price="${price ?? 0}" data-quantity="${quantity}" title="Item Price">
+                  ${totalPrice}
+                </span>
+              </div>
             </div>
             <div class="row gx-2">
               <div class="form-floating shadow col">
@@ -643,7 +677,7 @@
    * Updates a item card in the item list with the latest information.
    * @param {*} id The id number of the new item
    * @param {*} itemName Name of the item
-   * @param {*} itemType The type of item
+   * @param {*} itemType The type list of item
    * @param {*} colour The colour of the item (shown on header)
    * @param {*} quantity The quantity of the item
    * @param {*} itemDate The item's set date in ISO format
@@ -658,9 +692,15 @@
     const totalPrice = `<span class="currency-display" data-price="${price}">${currencyFormat(price ?? 0)}</span>`;
 
     document.getElementById(`${id}-itemName`).innerHTML = itemName;
-    document.getElementById(`${id}-itemType`).innerHTML = itemType;
     document.getElementById(`${id}-quantity`).value = quantity;
     document.getElementById(`${id}-itemDate`).innerHTML = dateTime;
+
+    // compile item types list
+    let itemTypeList = "";
+    itemType.forEach(type => {
+      itemTypeList += `<span class="badge bg-primary" title="Item Type">${type}</span>`;
+    });
+    document.getElementById(`${id}-itemType`).innerHTML = itemTypeList;
 
     // update price and display
     let priceEl = document.getElementById(`${id}-itemPrice`);
@@ -812,6 +852,24 @@
     document.getElementById('itemPriceTotal').innerHTML = `Total Price: ${currencyFormat(total)}`;
   }
 
+  /**
+   * Displays an item type button group in the add/update form.
+   * @param {*} itemType The name of the item type
+   */
+  function displayItemTypeModifier(itemType) {
+    let itemTypeList = document.getElementById('itemTypeList');
+
+    // The first type in the list is always the primary item type
+    let isPrimary = itemTypeList.innerHTML === '';
+
+    itemTypeList.innerHTML +=
+      `<div class="btn-group" role="group">
+        <button class="btn btn-sm btn-${isPrimary ? 'success' : 'primary'} item-type" type="button" title="${isPrimary
+          ? "Primary " : ""}Item Type" onclick="setPrimaryItemType(this)">${itemType}</button>
+        <button class="btn btn-sm btn-outline-danger" type="button" onclick="removeItemType(this)"><i class="bi bi-trash3"></i></button>
+      </div>`;
+  }
+
   /*====================== LISTENER FUNCTIONS ====================*/
 
   /**
@@ -854,7 +912,7 @@
           if (parseInput.items) {
             // reset UI elements
             alertMessage('messageArea', '');
-            itemFormCanvas.hide();
+            ITEM_FORM_CANVAS.hide();
 
             // load file content
             api.loadInventory(parseInput);
@@ -1054,6 +1112,7 @@
     document.getElementById('itemQuantity').value = "";
     document.getElementById('itemPrice').value = "";
     document.getElementById('itemWeight').value = "";
+    document.getElementById('itemTypeList').innerHTML = "";
     document.getElementById('itemWeightUnit').innerHTML = "kg";
     document.getElementById('itemPriceTotal').innerHTML = "";
 
@@ -1071,7 +1130,7 @@
     alertMessage('itemFormMessageArea', '');
 
     // show the item form
-    itemFormCanvas.show();
+    ITEM_FORM_CANVAS.show();
   }
 
   /**
@@ -1093,7 +1152,7 @@
 
     let id = parseInt(event.target.itemId.value);
     let itemName = event.target.itemName.value.trim();
-    let itemType = event.target.itemType.value.trim();
+    let itemTypes = document.getElementById('itemTypeList').querySelectorAll('.item-type');
     let itemColour = event.target.itemColour.value;
     let itemDate = event.target.itemDate.value;
     let weightUnit = document.getElementById('itemWeightUnit').innerHTML;
@@ -1112,8 +1171,8 @@
       alertMessage('itemFormMessageArea', 'Please enter item name.', 'danger', 3);
       return;
     }
-    else if (!itemType) {
-      alertMessage('itemFormMessageArea', 'Please enter item type.', 'danger', 3);
+    else if (!itemTypes.length) {
+      alertMessage('itemFormMessageArea', 'Please add at least one item type.', 'danger', 3);
       return;
     }
     else if (!itemColour) {
@@ -1146,6 +1205,12 @@
       return;
     }
 
+    // parse list of item type badges into name list
+    let itemTypeList = [];
+    itemTypes.forEach(type => {
+      itemTypeList.push(type.innerHTML);
+    });
+
     // if no date selected, use current date/time
     if (!itemDate) {
       date = new Date();
@@ -1165,18 +1230,61 @@
 
     // add or update the item
     if (isNaN(id)) {
-      dbAddItem(itemName, itemType, itemColour, parseQuantity, dateTime, parsePrice, parseWeight, weightUnit);
+      dbAddItem(itemName, itemTypeList, itemColour, parseQuantity, dateTime, parsePrice, parseWeight, weightUnit);
     }
     else {
-      dbUpdateItem(id, itemName, itemType, itemColour, parseQuantity, dateTime, parsePrice, parseWeight, weightUnit);
+      dbUpdateItem(id, itemName, itemTypeList, itemColour, parseQuantity, dateTime, parsePrice, parseWeight, weightUnit);
     }
   }
 
   /**
-   * Button listener for add/update form.
+   * Submit button listener for add/update form.
    */
   window.addUpdateSave = () => {
     document.getElementById('addUpdateForm').requestSubmit();
+  }
+
+  /**
+   * Adds an item type to the form.
+   * @param {*} el The HTML event
+   */
+  window.addItemType = () => {
+    let itemType = document.getElementById('itemType');
+    let itemName = itemType.value.trim();
+    itemType.value = '';
+
+    displayItemTypeModifier(itemName);
+  }
+
+  /**
+   * Set the clicked item type to be the primary item type.
+   * @param {*} el The HTML element
+   */
+  window.setPrimaryItemType = (el) => {
+    let itemType = el.innerHTML;
+    el.parentElement.remove();
+
+    // place selected item into primary slot
+    let typeArea = document.getElementById('itemTypeList');
+    let itemTypes = typeArea.querySelectorAll('.item-type');
+    let itemTypeList = [itemType];
+    itemTypes.forEach(type => {
+      itemTypeList.push(type.innerHTML);
+    });
+
+    // redraw item type list
+    typeArea.innerHTML = "";
+    itemTypeList.forEach(type => {
+      displayItemTypeModifier(type);
+    });
+  }
+
+  /**
+   * Remove the clicked item type from the list.
+   * @param {*} el The HTML element
+   */
+  window.removeItemType = (el) => {
+    el.parentElement.remove();
   }
 
   /**

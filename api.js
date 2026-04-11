@@ -72,7 +72,7 @@ const api = (function () {
      */
     fetchItemsByType: (typeList) => {
       const items = getItemsFromLocalStorage();
-      return items.filter(el => typeList.includes(el.type));
+      return items.filter(el => el.type.some(t => typeList.includes(t)));
     },
 
     /**
@@ -109,7 +109,7 @@ const api = (function () {
      * Add a item to the item list.
      * @param {*} id The id number of the new item
      * @param {*} name Name of the item
-     * @param {*} type The type of item
+     * @param {*} type The type list of item
      * @param {*} colour Colour of the item
      * @param {*} quantity The quantity of the item
      * @param {*} date The item's scheduled date in ISO format
@@ -148,7 +148,7 @@ const api = (function () {
      * Update a item in the item list.
      * @param {*} id The id number of the new item
      * @param {*} name Name of the item
-     * @param {*} type The type of item
+     * @param {*} type The type list of item
      * @param {*} colour Colour of the item
      * @param {*} quantity The quantity of the item
      * @param {*} date The item's scheduled date in ISO format
@@ -242,7 +242,7 @@ const api = (function () {
      */
     sortItemsByType: (isDescending = false) => {
       let items = getItemsFromLocalStorage();
-      items.sort((a, b) => isDescending ? b.type.localeCompare(a.type) : a.type.localeCompare(b.type) || a.name.localeCompare(b.name));
+      items.sort((a, b) => isDescending ? b.type.localeCompare(a.type[0]) : a.type.localeCompare(b.type[0]) || a.name.localeCompare(b.name));
       saveItemsToLocalStorage(items);
       return items;
     },
