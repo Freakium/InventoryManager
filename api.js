@@ -242,7 +242,7 @@ const api = (function () {
      */
     sortItemsByType: (isDescending = false) => {
       let items = getItemsFromLocalStorage();
-      items.sort((a, b) => isDescending ? b.type.localeCompare(a.type[0]) : a.type.localeCompare(b.type[0]) || a.name.localeCompare(b.name));
+      items.sort((a, b) => isDescending ? b.type[0].localeCompare(a.type[0]) : a.type[0].localeCompare(b.type[0]) || a.name.localeCompare(b.name));
       saveItemsToLocalStorage(items);
       return items;
     },
