@@ -104,6 +104,28 @@
   });
 
   /**
+   * Enter key listener for form's Item Type input. Wait 10ms for autocomplete to finish before running addItemType().
+   */
+  document.getElementById('itemType').addEventListener("keydown", function(event) {
+    if (event.key === "Enter") {
+      setTimeout(() => {
+        addItemType();
+      }, 10);
+    }
+  });
+
+  /**
+   * Click listener for form's Item Type input. Wait 10ms for autocomplete to finish before running addItemType().
+   */
+  document.getElementById('itemType').parentElement.addEventListener("click", function(event) {
+    if(event.target.parentElement.matches('.autocomplete-items')) {
+      setTimeout(() => {
+        addItemType();
+      }, 10);
+    }
+  });
+
+  /**
    * Closes navbar when user taps out of it on mobile.
    */
   document.getElementById('item-list').addEventListener('click', e => {
@@ -417,6 +439,27 @@
   }
 
   /**
+   * Sets item card text and icon color depending on background luminosity.
+   * @param {*} hexColor The hex color string
+   * @returns HTML class to use for header
+   */
+  function headerDarkCheck(hexColor) {
+    // Remove leading # if present
+    const hex = hexColor.replace(/^#/, '');
+    
+    // Parse RGB
+    const r = parseInt(hex.substring(0, 2), 16);
+    const g = parseInt(hex.substring(2, 4), 16);
+    const b = parseInt(hex.substring(4, 6), 16);
+    
+    // Calculate luminance (W3C AERT method)
+    const luma = (0.299 * r + 0.587 * g + 0.114 * b);
+    
+    // Return -dark for light bg, empty for dark bg
+    return luma > 175 ? '-dark' : '';
+  }
+
+  /**
    * Calculates the total price of all items and shows/hides the total price display.
    * @param {*} newPrice New price to add to total
    */
@@ -634,14 +677,17 @@
       itemTypeList += `<span class="badge bg-primary" title="Item Type">${type}</span>`;
     });
 
+    // set text colour according to background luminosity
+    let headerTextColor = headerDarkCheck(colour);
+
     document.getElementById('item-list').innerHTML +=
       `<div class="item-header col" id="${id}">
         <div class="card shadow h-100">
-          <div class="card-header d-flex flex-wrap fw-bold text-white" id="${id}-header" style="background-color: ${colour}">
-            <span class="d-flex align-items-center" id="${id}-itemName" title="Item Name">${itemName}</span>
+          <div class="card-header d-flex flex-wrap" id="${id}-header" style="background-color: ${colour}">
+            <span class="d-flex align-items-center fw-bold item-card${headerTextColor}" id="${id}-itemName" title="Item Name">${itemName}</span>
             <div class="d-flex ms-auto">
-              <button class="btn btn-sm btn-link" onclick="updateItemMode('${id}', true)" title="Duplicate"><i class="bi bi-copy"></i></button>
-              <button class="btn btn-sm btn-link" onclick="updateItemMode('${id}')" title="Edit"><i class="bi bi-pencil-square"></i></button>
+              <button class="btn btn-sm btn-link${headerTextColor}" onclick="updateItemMode('${id}', true)" title="Duplicate"><i class="bi bi-copy"></i></button>
+              <button class="btn btn-sm btn-link${headerTextColor}" onclick="updateItemMode('${id}')" title="Edit"><i class="bi bi-pencil-square"></i></button>
             </div>
           </div>
           <div class="card-body bg-secondary-subtle">
@@ -691,9 +737,23 @@
     });
     const totalPrice = `<span class="currency-display" data-price="${price}">${currencyFormat(price ?? 0)}</span>`;
 
-    document.getElementById(`${id}-itemName`).innerHTML = itemName;
+    let nameEl = document.getElementById(`${id}-itemName`);
+    nameEl.innerHTML = itemName;
     document.getElementById(`${id}-quantity`).value = quantity;
     document.getElementById(`${id}-itemDate`).innerHTML = dateTime;
+
+    // set header colour
+    document.getElementById(`${id}-header`).style.backgroundColor = colour;
+
+    // set text colour according to background luminosity
+    let headerTextColor = headerDarkCheck(colour);
+    nameEl.classList.remove('item-card', 'item-card-dark');
+    nameEl.classList.add(`item-card${headerTextColor}`);
+    let iconEl = document.getElementById(`${id}-header`).querySelectorAll('.btn');
+    iconEl.forEach(btn => {
+      btn.classList.remove('btn-link', 'btn-link-dark');
+      btn.classList.add(`btn-link${headerTextColor}`);
+    });
 
     // compile item types list
     let itemTypeList = "";
@@ -718,9 +778,6 @@
     else {
       tp.parentElement.classList.add('d-none');
     }
-
-    // set header colour
-    document.getElementById(`${id}-header`).style.backgroundColor = colour;
   }
 
   /**
@@ -859,15 +916,27 @@
   function displayItemTypeModifier(itemType) {
     let itemTypeList = document.getElementById('itemTypeList');
 
-    // The first type in the list is always the primary item type
-    let isPrimary = itemTypeList.innerHTML === '';
+    // check if item type already exists in list
+    let safeToAdd = true;
+    let existing = itemTypeList.querySelectorAll('.item-type');
+    existing.forEach(type => {
+      if(type.innerHTML.toLowerCase() === itemType.toLowerCase()) {
+        alertMessage('itemFormMessageArea', 'Item type already in list.', 'warning', 3);
+        safeToAdd = false;
+      }
+    });
 
-    itemTypeList.innerHTML +=
-      `<div class="btn-group" role="group">
-        <button class="btn btn-sm btn-${isPrimary ? 'success' : 'primary'} item-type" type="button" title="${isPrimary
-          ? "Primary " : ""}Item Type" onclick="setPrimaryItemType(this)">${itemType}</button>
-        <button class="btn btn-sm btn-outline-danger" type="button" onclick="removeItemType(this)"><i class="bi bi-trash3"></i></button>
-      </div>`;
+    if(safeToAdd) {
+      // The first type in the list is always the primary item type
+      let isPrimary = itemTypeList.innerHTML === '';
+
+      itemTypeList.innerHTML +=
+        `<div class="btn-group" role="group">
+          <button class="btn btn-sm btn-${isPrimary ? 'success' : 'primary'} item-type" type="button" title="${isPrimary
+            ? "Primary " : ""}Item Type" onclick="setPrimaryItemType(this)">${itemType}</button>
+          <button class="btn btn-sm btn-outline-danger" type="button" onclick="removeItemType(this)"><i class="bi bi-trash3"></i></button>
+        </div>`;
+    }
   }
 
   /*====================== LISTENER FUNCTIONS ====================*/
@@ -1285,6 +1354,15 @@
    */
   window.removeItemType = (el) => {
     el.parentElement.remove();
+
+    // if one item type remaining, set as primary
+    let types = document.getElementById('itemTypeList').querySelectorAll('.item-type');
+    if(types.length === 1) {
+      if(types[0].classList.contains('btn-primary')) {
+        types[0].classList.remove('btn-primary');
+        types[0].classList.add('btn-success');
+      }
+    }
   }
 
   /**
