@@ -937,6 +937,8 @@
           <button class="btn btn-sm btn-outline-danger" type="button" onclick="removeItemType(this)"><i class="bi bi-trash3"></i></button>
         </div>`;
     }
+
+    return safeToAdd;
   }
 
   /*====================== LISTENER FUNCTIONS ====================*/
@@ -1219,12 +1221,21 @@
   window.addOrUpdateItem = (event) => {
     event.preventDefault();
 
+    // add any residual item types in textbox
+    let itemType = document.getElementById('itemType').value;
+    if(itemType) {
+      let addTypeResult = addItemType();
+      if(!addTypeResult) {
+        return;
+      }
+    }
+
     let id = parseInt(event.target.itemId.value);
     let itemName = event.target.itemName.value.trim();
     let itemTypes = document.getElementById('itemTypeList').querySelectorAll('.item-type');
+    let weightUnit = document.getElementById('itemWeightUnit').innerHTML;
     let itemColour = event.target.itemColour.value;
     let itemDate = event.target.itemDate.value;
-    let weightUnit = document.getElementById('itemWeightUnit').innerHTML;
 
     // parsing
     let itemQuantity = event.target.itemQuantity.value;
@@ -1244,24 +1255,24 @@
       alertMessage('itemFormMessageArea', 'Please add at least one item type.', 'danger', 3);
       return;
     }
-    else if (!itemColour) {
-      alertMessage('itemFormMessageArea', 'Please select a colour.', 'danger', 3);
-      return;
-    }
-    else if (isNaN(parseQuantity) && itemQuantity !== '') {
-      alertMessage('itemFormMessageArea', 'Please enter a valid quantity.', 'danger', 3);
-      return;
-    }
-    else if (itemDate && !date) {
-      alertMessage('itemFormMessageArea', 'Please enter a valid date.', 'danger', 3);
-      return;
-    }
     else if (itemPrice && (isNaN(parsePrice) || parsePrice < 0)) {
       alertMessage('itemFormMessageArea', 'Please enter a valid price.', 'danger', 3);
       return;
     }
     else if (itemWeight && (isNaN(parseWeight) || parseWeight < 0)) {
       alertMessage('itemFormMessageArea', 'Please enter a valid weight.', 'danger', 3);
+      return;
+    }
+    else if (isNaN(parseQuantity) && itemQuantity !== '') {
+      alertMessage('itemFormMessageArea', 'Please enter a valid quantity.', 'danger', 3);
+      return;
+    }
+    else if (!itemColour) {
+      alertMessage('itemFormMessageArea', 'Please select a colour.', 'danger', 3);
+      return;
+    }
+    else if (itemDate && !date) {
+      alertMessage('itemFormMessageArea', 'Please enter a valid date.', 'danger', 3);
       return;
     }
 
@@ -1316,13 +1327,14 @@
   /**
    * Adds an item type to the form.
    * @param {*} el The HTML event
+   * @returns Result of adding item type
    */
   window.addItemType = () => {
     let itemType = document.getElementById('itemType');
     let itemName = itemType.value.trim();
     itemType.value = '';
 
-    displayItemTypeModifier(itemName);
+    return displayItemTypeModifier(itemName);
   }
 
   /**
