@@ -13,8 +13,6 @@
   // keeps the total item count
   let ITEM_COUNT = 0;
 
-  /*========================== AUTORUN ===========================*/
-
   /**
    * Initialize date/time picker input
    */
@@ -24,6 +22,8 @@
     altInput: true,
     altFormat: "Y-m-d, h:i K"
   });
+
+  /*========================== LISTENERS ===========================*/
 
   /**
    * Run on load.
@@ -336,7 +336,7 @@
     updateCurrencySymbol(symbol);
   }
 
-  /*====================== HELPER FUNCTIONS ======================*/
+  /*====================== LOGIC ======================*/
 
   /**
    * Renders all items as cards with an "Add Item" button appended to the end.
@@ -513,7 +513,7 @@
     return (lb * conversionFactor).toFixed(4);
   }
 
-  /*====================== DISPLAY FUNCTIONS =====================*/
+  /*====================== DISPLAY =====================*/
 
   /**
    * Displays an alert message.
@@ -941,7 +941,7 @@
     return safeToAdd;
   }
 
-  /*====================== LISTENER FUNCTIONS ====================*/
+  /*====================== GLOBAL ====================*/
 
   /**
    * Resets all data by clearing title and items.
