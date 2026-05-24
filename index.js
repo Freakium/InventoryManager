@@ -281,7 +281,7 @@
       calculateTotal();
 
       // update type list
-      if (OLD_ITEM_TYPES.slice().sort().join(',') !== itemType.slice().sort().join(',')) {
+      if (OLD_ITEM_TYPES.slice().sort().join(',').toLowerCase() !== itemType.slice().sort().join(',').toLowerCase()) {
         updateTypeList('update', itemType);
       }
 
@@ -621,31 +621,34 @@
     switch (mode) {
       case 'delete':
         OLD_ITEM_TYPES.forEach(type => {
-          if (currentItemsTypes.hasOwnProperty(type)) {
-            currentItemsTypes[type]--;
-            if (currentItemsTypes[type] === 0) {
-              delete currentItemsTypes[type];
+          const decodeType = decodeHTMLEntities(type);
+          if (currentItemsTypes.hasOwnProperty(decodeType)) {
+            currentItemsTypes[decodeType]--;
+            if (currentItemsTypes[decodeType] === 0) {
+              delete currentItemsTypes[decodeType];
             }
           }
         });
         break;
       case 'update':
         OLD_ITEM_TYPES.forEach(type => {
-          if (currentItemsTypes.hasOwnProperty(type)) {
-            currentItemsTypes[type]--;
-            if (currentItemsTypes[type] === 0) {
-              delete currentItemsTypes[type];
+          const decodeType = decodeHTMLEntities(type);
+          if (currentItemsTypes.hasOwnProperty(decodeType)) {
+            currentItemsTypes[decodeType]--;
+            if (currentItemsTypes[decodeType] === 0) {
+              delete currentItemsTypes[decodeType];
             }
           }
         });
       // update also needs to add type so no break
       case 'add':
         itemType.forEach(type => {
-          if (currentItemsTypes.hasOwnProperty(type)) {
-            currentItemsTypes[type]++;
+          const decodeType = decodeHTMLEntities(type);
+          if (currentItemsTypes.hasOwnProperty(decodeType)) {
+            currentItemsTypes[decodeType]++;
           }
           else {
-            currentItemsTypes[type] = 1;
+            currentItemsTypes[decodeType] = 1;
           }
         });
     }
@@ -920,7 +923,7 @@
     let safeToAdd = true;
     let existing = itemTypeList.querySelectorAll('.item-type');
     existing.forEach(type => {
-      if(type.innerHTML.toLowerCase() === itemType.toLowerCase()) {
+      if(decodeHTMLEntities(type.innerHTML.toLowerCase()) === itemType.toLowerCase()) {
         alertMessage('itemFormMessageArea', 'Item type already in list.', 'warning', 3);
         safeToAdd = false;
       }
@@ -939,6 +942,28 @@
     }
 
     return safeToAdd;
+  }
+
+  /**
+   * Encode text into escaped HTML.
+   * @param {*} text The text string to encode
+   * @returns Escaped HTML.
+   */
+  function encodeHTMLEntities(text) {
+    const el = document.createElement('textarea');
+    el.innerText = text;
+    return el.innerHTML;
+  }
+
+  /**
+   * Decode HTML into text.
+   * @param {*} html HTML to decode.
+   * @returns Decoded string.
+   */
+  function decodeHTMLEntities(html) {
+    const el = document.createElement('textarea');
+    el.innerHTML = html;
+    return el.value;
   }
 
   /*====================== GLOBAL ====================*/
@@ -1147,7 +1172,7 @@
       else {
         let typeList = [];
         document.querySelectorAll('.typeListBtn.active').forEach((typeEl) => {
-          typeList.push(typeEl.getAttribute('data-name'));
+          typeList.push(encodeHTMLEntities(typeEl.getAttribute('data-name')));
         });
         let itemList = api.fetchItemsByType(typeList);
         renderItems(itemList);
