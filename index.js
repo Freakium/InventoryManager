@@ -1359,6 +1359,11 @@
     let itemName = itemType.value.trim();
     itemType.value = '';
 
+    // do nothing if blank
+    if(!itemName) {
+      return;
+    }
+
     return displayItemTypeModifier(itemName);
   }
 
