@@ -620,26 +620,10 @@
 
     switch (mode) {
       case 'delete':
-        OLD_ITEM_TYPES.forEach(type => {
-          const decodeType = decodeHTMLEntities(type);
-          if (currentItemsTypes.hasOwnProperty(decodeType)) {
-            currentItemsTypes[decodeType]--;
-            if (currentItemsTypes[decodeType] === 0) {
-              delete currentItemsTypes[decodeType];
-            }
-          }
-        });
+        itemTypeDecrementer();
         break;
       case 'update':
-        OLD_ITEM_TYPES.forEach(type => {
-          const decodeType = decodeHTMLEntities(type);
-          if (currentItemsTypes.hasOwnProperty(decodeType)) {
-            currentItemsTypes[decodeType]--;
-            if (currentItemsTypes[decodeType] === 0) {
-              delete currentItemsTypes[decodeType];
-            }
-          }
-        });
+        itemTypeDecrementer();
       // update also needs to add type so no break
       case 'add':
         itemType.forEach(type => {
@@ -654,6 +638,21 @@
     }
 
     createTypeList(currentItemsTypes, activeType);
+
+    /**
+     * Finds item type in list and decrements it by 1.
+     */
+    function itemTypeDecrementer() {
+      OLD_ITEM_TYPES.forEach(type => {
+        const decodeType = decodeHTMLEntities(type);
+        if (currentItemsTypes.hasOwnProperty(decodeType)) {
+          currentItemsTypes[decodeType]--;
+          if (currentItemsTypes[decodeType] === 0) {
+            delete currentItemsTypes[decodeType];
+          }
+        }
+      });
+    }
   }
 
   /**
@@ -1310,10 +1309,22 @@
       return;
     }
 
+    // get list of existing item types
+    const allTypes = api.fetchItemTypes();
+
     // parse list of item type badges into name list
     let itemTypeList = [];
     itemTypes.forEach(type => {
-      itemTypeList.push(type.innerHTML);
+      const typeName = type.innerHTML;
+      const findType = allTypes.find(t => t.toLowerCase() === typeName.toLowerCase());
+
+      // preserve letter case of existing item type
+      if(findType) {
+        itemTypeList.push(findType);
+      }
+      else {
+        itemTypeList.push(typeName);
+      }
     });
 
     // if no date selected, use current date/time

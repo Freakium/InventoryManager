@@ -76,6 +76,26 @@ const api = (function () {
     },
 
     /**
+     * Fetches a list of all item types.
+     * @returns array of item type names
+     */
+    fetchItemTypes: () => {
+      const items = getItemsFromLocalStorage();
+
+      let types = [];
+      items.map(el => {
+        el.type.forEach(t => {
+          if(!types.find(i => i === t)) {
+            types.push(t);
+          }
+        });
+      });
+      types.sort();
+
+      return types;
+    },
+
+    /**
      * Fetches the title of the inventory list.
      */
     fetchTitle: () => {
