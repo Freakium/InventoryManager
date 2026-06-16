@@ -82,6 +82,9 @@
     });
   });
 
+  /**
+   * Show or hide the "Scroll To Top" button.
+   */
   window.addEventListener('scroll', e => {
     const btn = document.getElementById('scrollToTop');
     btn.style.display = window.scrollY > 20 ? 'block' : 'none';
@@ -142,6 +145,16 @@
     document.getElementById('formHelpModal').focus();
   });
   document.getElementById('formHelpModal').addEventListener('hidden.bs.modal', e => {
+    document.getElementById('itemForm').focus();
+  });
+
+  /**
+   * While the delete modal is open, set focus accordingly.
+   */
+  document.getElementById('deleteModal').addEventListener('shown.bs.modal', e => {
+    document.getElementById('deleteModal').focus();
+  });
+  document.getElementById('deleteModal').addEventListener('hidden.bs.modal', e => {
     document.getElementById('itemForm').focus();
   });
 
