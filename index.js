@@ -37,6 +37,9 @@
       toggleTheme();
     }
 
+    // set footer signature and date
+    document.getElementById('footer-signature').textContent = `Freakium ${/\d{4}/.exec(Date())[0]}`;
+
     // Set up draggable item sorting
     $('#item-list').sortable({
       containment: "parent",
